@@ -3,9 +3,9 @@
 # for more information, please refer to the documentation of jekyll-socials plugin: https://github.com/george-gca/jekyll-socials
 cv_pdf: /assets/pdf/AkkocSemih_resume.pdf # path to your CV PDF file
 email: semihm.akkoc@gmail.com # your email address
-rss_icon: true # comment this line to hide the RSS icon
+# rss_icon: true # comment this line to hide the RSS icon
 github_username: SemihAkkoc
 linkedin_username: msemihakkoc
 # wechat_qr: # filename of your wechat qr-code saved as an image (e.g., wechat-qr.png if saved to assets/img/wechat-qr.png)
 # whatsapp_number: # your WhatsApp number (full phone number in international format. Omit any zeroes, brackets, or dashes when adding the phone number in international format.)
-# scholar_userid: # your Google Scholar ID
+scholar_userid: 2T86180AAAAJ # your Google Scholar ID
