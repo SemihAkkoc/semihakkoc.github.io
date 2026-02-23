@@ -1,14 +1,10 @@
 github_users:
-  - torvalds
-  - alshedivat
+  - SemihAkkoc
 
 repo_description_lines_max: 2
 
 github_repos:
-  - alshedivat/al-folio
-  - jekyll/jekyll
-  - twbs/bootstrap
-  - jquery/jquery
-  - FortAwesome/Font-Awesome
-  - mathjax/MathJax
-  - jpswalsh/academicons
+  - SemihAkkoc/DielectricConstantPrediction
+  - SemihAkkoc/attention_dynamics
+  - SemihAkkoc/LiFi
+  - SemihAkkoc/file_transfer

@@ -1,10 +1,10 @@
 cv:
   name: Mahmut Semih Akkoc
-  label: B.Sc. Candidate in Electrical and Electronics Engineering & Physics
-  email: semih.akkoc@ug.bilkent.edu.tr
-  location: Ankara, Türkiye
+  label: Ph.D candidate in ECE at UMD, College Park.
+  email: akkoc@umd.edu
+  location: College Park, Maryland
   image: ""
-  summary: Undergraduate researcher focused on semantic signal processing, communications, and computational electromagnetics with hands-on hardware and simulation experience.
+  summary: Ph.D candidate in Electrical and Computer Engineering at University of Maryland, College Park.
 
   social_networks:
     - network: GitHub
@@ -14,13 +14,23 @@ cv:
 
   sections:
     Education:
+      - institution: University of Maryland, College Park
+        location: College Park, Maryland
+        area: Electrical and Computer Engineering
+        studyType: Ph.D. Candidate
+        start_date: 2025-08
+        end_date: present
+        score: "4.00/4.00"
+        highlights:
+          - Pursuing research in learning theory and information theory under the supervision of Prof. Sennur Ulukus.
+          - Recipient of the UMD Graduate School Fellowship for outstanding academic achievement.
       - institution: Bilkent University
         location: Ankara, Türkiye
         area: Electrical and Electronics Engineering
         studyType: B.Sc.
         start_date: 2021-09
         end_date: 2025-05
-        score: "3.93/4.00"
+        score: "3.92/4.00"
         highlights:
           - Major in Electrical and Electronics Engineering.
 

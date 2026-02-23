@@ -26,8 +26,8 @@ latest_posts:
   limit: 3 # leave blank to include all the blog posts
 ---
 
-I am an graduate researcher at University of Maryland, College Park working at the intersection of semantic signal processing, communications, and computational electromagnetics.
+I am a first-year Ph.D. student in Electrical and Computer Engineering (ECE) at the University of Maryland, College Park, where I am advised by Prof. Sennur Ulukus. My research generally lies at the intersection of information theory, machine learning, and signal processing.
 
-My current research includes practical hardware demonstrations of goal-oriented semantic communication systems using Raspberry Pi platforms, as well as electromagnetic simulation studies based on the method of moments.
+My current academic interests focus on the theoretical foundations of modern AI architectures, specifically exploring tokenization in Large Language Models (LLMs) and optimization techniques for Transformers. I am also deeply interested in advanced topics within statistical signal processing and detection theory. Alongside my research, I serve as a Teaching Assistant within the ECE department at UMD.
 
-I previously completed internships at Huawei, Aselsan, and BITES, where I worked on semantic communication prototypes, dielectric material characterization workflows, and networked software systems. I am especially interested in efficient next-generation communication and sensing systems combining signal processing, machine learning, and hardware-aware design.
+Before coming to Maryland, I completed my undergraduate studies at Bilkent University, where I double-majored in Electrical Engineering and Physics. My earlier background includes practical hardware demonstrations, electromagnetic simulation studies, and industry internships at Huawei, Aselsan, and BITES, where I worked on semantic communication prototypes and networked software systems.
