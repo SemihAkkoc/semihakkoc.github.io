@@ -2,15 +2,15 @@
 layout: about
 title: about
 permalink: /
-subtitle: B.Sc. Candidate in Electrical and Electronics Engineering & Physics at Bilkent University
+subtitle: Ph.D candidate in ECE at UMD, College Park.
 
 profile:
   align: right
   image: prof_pic.jpg
   image_circular: false # crops the image to make it circular
   more_info: >
-    <p>Ankara, Türkiye</p>
-    <p>semih.akkoc@ug.bilkent.edu.tr</p>
+    <p>College Park, MD, USA</p>
+    <p>akkoc@umd.edu</p>
 
 selected_papers: true # includes a list of papers marked as "selected={true}"
 social: true # includes social icons at the bottom of the page
@@ -26,7 +26,7 @@ latest_posts:
   limit: 3 # leave blank to include all the blog posts
 ---
 
-I am an undergraduate researcher at Bilkent University working at the intersection of semantic signal processing, communications, and computational electromagnetics.
+I am an graduate researcher at University of Maryland, College Park working at the intersection of semantic signal processing, communications, and computational electromagnetics.
 
 My current research includes practical hardware demonstrations of goal-oriented semantic communication systems using Raspberry Pi platforms, as well as electromagnetic simulation studies based on the method of moments.
 

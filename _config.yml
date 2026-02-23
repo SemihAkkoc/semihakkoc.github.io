@@ -7,16 +7,15 @@ first_name: Semih
 middle_name: M.
 last_name: Akkoc
 contact_note: >
-  semih.akkoc@ug.bilkent.edu.tr <br>
+  akkoc@umd.edu <br>
   Email is the best way to reach me.
 description: > # the ">" symbol means to ignore newlines until "footer_text:"
-  B.Sc. candidate in Electrical and Electronics Engineering and Physics at Bilkent University.
+  Ph.D candidate in Electrical and Computer Engineering at University of Maryland, College Park.
 footer_text: >
   Hosted by <a href="https://pages.github.com/" target="_blank">GitHub Pages</a>.
-  Photos from <a href="https://unsplash.com" target="_blank">Unsplash</a>.
-keywords: Semih Akkoc, semantic communications, signal processing, electromagnetics, Bilkent University
+keywords: Semih Akkoc, information theory, transformers, learning theory
 lang: en # the language of your site (for example: en, fr, cn, ru, etc.)
-icon: ⚛️ # the emoji used as the favicon (alternatively, provide image name in /assets/img/)
+icon: "" # the emoji used as the favicon (alternatively, provide image name in /assets/img/)
 
 url: https://semihakkoc.github.io # the base hostname & protocol for your site
 baseurl: "" # the subpath of your site, e.g. /blog/. Leave blank for root
@@ -91,8 +90,8 @@ bing_site_verification: # out your bing-site-verification ID (Bing Webmaster)
 # Blog
 # -----------------------------------------------------------------------------
 
-blog_name: al-folio # blog_name will be displayed in your blog page
-blog_description: a simple whitespace theme for academics
+blog_name: Semih's blog # blog_name will be displayed in your blog page
+blog_description: some of my thoughts and writings on research, academia, and life in general # blog_description will be displayed in your blog page
 permalink: /blog/:year/:title/
 lsi: false # produce an index for related posts
 
