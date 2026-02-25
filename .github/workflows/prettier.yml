@@ -16,6 +16,7 @@ jobs:
     permissions:
       # Give the action permission to write back to the repository
       contents: write
+      workflows: write
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
