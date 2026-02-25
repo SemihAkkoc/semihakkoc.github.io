@@ -2,7 +2,7 @@
 layout: about
 title: about
 permalink: /
-subtitle: Ph.D candidate in ECE at UMD, College Park.
+subtitle: PhD Candidate in ECE at UMD, College Park.
 
 profile:
   align: right
