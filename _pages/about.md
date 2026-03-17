@@ -29,4 +29,4 @@ I am a first-year Ph.D. student in Electrical and Computer Engineering (ECE) at 
 
 My current academic interests focus on the theoretical foundations of modern AI architectures, specifically exploring tokenization in Large Language Models (LLMs) and optimization techniques for Transformers. I am also deeply interested in advanced topics within statistical signal processing and detection theory. Alongside my research, I serve as a Teaching Assistant within the ECE department at UMD.
 
-Before coming to Maryland, I completed my undergraduate studies at Bilkent University, where I double-majored in Electrical and Electronics Engineering and Physics. I have industry internships at Huawei, Aselsan, and BITES, where I worked on semantic communication prototypes and networked software systems.
+Before coming to Maryland, I completed my undergraduate studies at Bilkent University, where I double-majored in Electrical and Electronics Engineering and Physics. I have industry internships at Huawei, Aselsan, and BITES, where I worked on semantic communication prototypes and networked systems.
