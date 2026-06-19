@@ -1,10 +1,10 @@
 cv:
   name: Mahmut Semih Akkoc
-  label: Ph.D candidate in ECE at UMD, College Park.
+  label: PhD Candidate in ECE at UMD, College Park.
   email: akkoc@umd.edu
   location: College Park, Maryland
   image: ""
-  summary: Ph.D candidate in Electrical and Computer Engineering at University of Maryland, College Park.
+  summary: PhD Candidate in Electrical and Computer Engineering at University of Maryland, College Park.
 
   social_networks:
     - network: GitHub
@@ -17,7 +17,7 @@ cv:
       - institution: University of Maryland, College Park
         location: College Park, Maryland
         area: Electrical and Computer Engineering
-        studyType: Ph.D. Candidate
+        studyType: PhD Candidate
         start_date: 2025-08
         end_date: present
         score: "4.00/4.00"
@@ -27,7 +27,7 @@ cv:
       - institution: Bilkent University
         location: Ankara, Türkiye
         area: Electrical and Electronics Engineering
-        studyType: B.Sc.
+        studyType: BSc
         start_date: 2021-09
         end_date: 2025-05
         score: "3.92/4.00"
@@ -37,7 +37,7 @@ cv:
       - institution: Bilkent University
         location: Ankara, Türkiye
         area: Physics
-        studyType: Double Major (B.Sc.)
+        studyType: Double Major (BSc)
         start_date: 2022-09
         end_date: 2025-05
         score: "3.93/4.00"
@@ -55,7 +55,7 @@ cv:
         position: Undergraduate Researcher
         location: Ankara, Türkiye
         start_date: 2023-02
-        end_date: present
+        end_date: 2025-09
         summary: Research across semantic signal processing and computational electromagnetics.
         highlights:
           - Conducted hardware demonstration studies for semantic signal processing using Raspberry Pi.
