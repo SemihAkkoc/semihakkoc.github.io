@@ -10,10 +10,10 @@ contact_note: >
   akkoc [at] umd [dot] edu <br>
   Email is the best way to reach me.
 description: > # the ">" symbol means to ignore newlines until "footer_text:"
-  PhD Candidate in Electrical and Computer Engineering at University of Maryland, College Park.
+  Ph.D. student in Electrical and Computer Engineering at the University of Maryland, College Park, working on information theory, data compression, and the interpretability of large language models.
 footer_text: >
   Hosted by <a href="https://pages.github.com/" target="_blank">GitHub Pages</a>.
-keywords: Semih Akkoc, information theory, transformers, learning theory
+keywords: Semih Akkoc, Mahmut Semih Akkoç, information theory, rate-distortion theory, compression, large language models, interpretability, transformers, University of Maryland
 lang: en # the language of your site (for example: en, fr, cn, ru, etc.)
 icon: "" # the emoji used as the favicon (alternatively, provide image name in /assets/img/)
 
@@ -53,23 +53,23 @@ external_services:
 # -----------------------------------------------------------------------------
 
 navbar_fixed: true
-footer_fixed: true
+footer_fixed: false
 search_enabled: true
 socials_in_search: true
 posts_in_search: true
 bib_search: true
 
 # Dimensions
-max_width: 930px
+max_width: 960px
 
 # -----------------------------------------------------------------------------
 # Open Graph & Schema.org
 # -----------------------------------------------------------------------------
 # Display links to the page with a preview object on social media.
 # see https://schema.org/docs/faq.html for more information
-serve_og_meta: false # Include Open Graph meta tags in the HTML head
+serve_og_meta: true # Include Open Graph meta tags in the HTML head
 serve_schema_org: false # Include Schema.org in the HTML head
-og_image: # The site-wide (default for all links) Open Graph preview image
+og_image: https://semihakkoc.github.io/assets/img/prof_pic_hero.jpg # The site-wide (default for all links) Open Graph preview image
 
 # -----------------------------------------------------------------------------
 # Analytics and search engine verification
@@ -338,13 +338,15 @@ filtered_bibtex_keywords:
     preview,
     selected,
     slides,
+    status,
     supp,
+    tldr,
     video,
     website,
   ]
 
 # Maximum number of authors to be shown for each publication (more authors are visible on click)
-max_author_limit: 3 # leave blank to always show all authors
+max_author_limit: # leave blank to always show all authors
 more_authors_animation_delay: 10 # more authors are revealed on click using animation; smaller delay means faster animation
 
 # Enables publication thumbnails. If disabled, none of the publications will display thumbnails, even if specified in the bib entry.
@@ -462,7 +464,7 @@ third_party_libraries:
     version: "5.5.0"
   google_fonts:
     url:
-      fonts: "https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&display=swap"
+      fonts: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=JetBrains+Mono:wght@400;500&family=Material+Icons&display=swap"
   highlightjs:
     integrity:
       css:

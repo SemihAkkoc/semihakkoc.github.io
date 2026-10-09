@@ -1,128 +1,215 @@
 cv:
-  name: Mahmut Semih Akkoc
-  label: PhD Candidate in ECE at UMD, College Park.
+  name: Mahmut Semih Akkoç
+  label: Ph.D. Student in Electrical and Computer Engineering, University of Maryland
   email: akkoc@umd.edu
-  location: College Park, Maryland
+  location: College Park, MD, USA
   image: ""
-  summary: PhD Candidate in Electrical and Computer Engineering at University of Maryland, College Park.
+  summary: >-
+    Ph.D. student in Electrical and Computer Engineering at the University of Maryland, advised by
+    Prof. Sennur Ulukus, working at the intersection of **information theory**, **data compression**,
+    and the **interpretability of large language models**. My research establishes the fundamental
+    limits of what can be discarded: deriving rate–distortion characterizations that govern task-aware
+    compression, and analyzing transformers as tractable dynamical systems to locate where
+    representational work actually happens.
 
   social_networks:
     - network: GitHub
       username: SemihAkkoc
     - network: LinkedIn
       username: msemihakkoc
+    - network: Google Scholar
+      username: 2T86180AAAAJ
 
   sections:
     Education:
       - institution: University of Maryland, College Park
-        location: College Park, Maryland
+        location: College Park, MD
         area: Electrical and Computer Engineering
-        studyType: PhD Candidate
-        start_date: 2025-08
+        degree: Ph.D.
+        start_date: 2025-09
         end_date: present
-        score: "4.00/4.00"
         highlights:
-          - Pursuing research in learning theory and information theory under the supervision of Prof. Sennur Ulukus.
-          - Recipient of the UMD Graduate School Fellowship for outstanding academic achievement.
-      - institution: Bilkent University
-        location: Ankara, Türkiye
-        area: Electrical and Electronics Engineering
-        studyType: BSc
-        start_date: 2021-09
-        end_date: 2025-05
-        score: "3.92/4.00"
-        highlights:
-          - Major in Electrical and Electronics Engineering.
+          - "GPA: 3.93/4.00"
+          - "Advisor: Prof. Sennur Ulukus"
+          - "Focus: Information Theory, Interpretability of Large Language Models"
+          - "Expected graduation: Aug. 2030"
 
       - institution: Bilkent University
         location: Ankara, Türkiye
-        area: Physics
-        studyType: Double Major (BSc)
-        start_date: 2022-09
+        area: Electrical and Electronics Engineering
+        degree: B.Sc.
+        start_date: 2021-09
         end_date: 2025-05
-        score: "3.93/4.00"
+        highlights:
+          - "GPA: 3.92/4.00"
 
       - institution: National University of Singapore
         location: Singapore
         area: Electrical and Computer Engineering
-        studyType: Exchange Student
+        degree: Exchange Student
         start_date: 2024-01
         end_date: 2024-05
-        courses: Quantum Communication and Cryptography, Quantum Mechanics I, Probability
+        highlights:
+          - "Relevant coursework: Quantum Communication and Cryptography, Quantum Mechanics I, Probability"
 
-    Experience:
+    Research Experience:
+      - company: University of Maryland, College Park
+        position: Graduate Research Assistant
+        summary: Information Theory & Machine Learning
+        location: College Park, MD
+        start_date: 2025-09
+        end_date: present
+        highlights:
+          - Develop information-theoretic and dynamical-systems tools for compressing and interpreting transformer architectures, spanning task-aware rate allocation and mechanistic analysis of attention and feed-forward blocks; one conference paper accepted, one journal submission under review, and two manuscripts in preparation within the first year of the program.
+          - Collaborate across four institutions (UMD, UW–Madison, Oxford, Ohio State) on the mathematical foundations of deep learning, translating abstract dynamical characterizations into empirically testable claims about model behavior.
+
       - company: Bilkent University
         position: Undergraduate Researcher
+        summary: Semantic Signal Processing (Prof. Orhan Arıkan) · Computational Electromagnetics (Prof. Vakur B. Ertürk)
         location: Ankara, Türkiye
         start_date: 2023-02
-        end_date: 2025-09
-        summary: Research across semantic signal processing and computational electromagnetics.
+        end_date: 2025-05
         highlights:
-          - Conducted hardware demonstration studies for semantic signal processing using Raspberry Pi.
-          - Implemented and simulated plane wave scattering by a perfectly conducting strip using the method of moments.
+          - Built the embedded hardware demonstrator that turned the group's theoretical semantic signal processing framework into a working multi-sensor system, establishing the experimental basis for a journal publication.
+          - Profiled semantic extraction under strict power and memory budgets on Raspberry Pi, quantifying the compute floor required for real-time goal-oriented inference at the edge.
+          - Implemented a method-of-moments solver from first principles to model plane-wave scattering by a perfectly conducting strip, validating numerical results against analytical limits.
 
-      - company: Aselsan
+    Industry Experience:
+      - company: ASELSAN
         position: Summer Intern
+        summary: RF & Microwave Systems
         location: Ankara, Türkiye
         start_date: 2024-08
         end_date: 2024-09
         highlights:
-          - Developed a MATLAB-based simulation to estimate dielectric constant and loss tangent for antenna-related materials.
-          - Modeled and simulated a suspended ring resonator in CST Studio and compared against MATLAB results.
-          - Built lookup tables and polynomial fits for adaptable material-property estimation.
+          - Designed a suspended ring resonator model in MATLAB and CST Studio that estimates dielectric constant and loss tangent, delivering a low-cost alternative to commercial material characterization for antenna development.
+          - Cross-validated MATLAB against full-wave CST simulations to bound estimation error, then generalized the method into a lookup table and polynomial fits so the tool transfers across materials without re-derivation.
 
       - company: Huawei
         position: R&D Intern
+        summary: Semantic Communications
         location: Ankara, Türkiye
         start_date: 2023-06
         end_date: 2023-08
         highlights:
-          - Implemented practical multi-sensor semantic communication with Raspberry Pi and camera modules.
-          - Achieved 143% data reduction compared to conventional methods through on-device semantic extraction.
-          - Built data fusion pipeline improving integration accuracy by 67.2% relative to non-fused data.
+          - Prototyped a two-node semantic communication network on Raspberry Pi devices that performs visual semantic extraction entirely on-device, collapsing the transmission requirement from a 10 Mbps raw video stream to roughly 10 bps of task-relevant semantic tokens, a ~10⁵× reduction in bandwidth achieved by transmitting meaning rather than pixels.
+          - Engineered the TCP-based transport layer and a stream fusion algorithm that merged asynchronous multi-sensor inputs, improving integration accuracy by 67.2% over unfused processing while operating within the power and memory envelope of embedded hardware.
 
-      - company: BITES - Defence & Aerospace Technologies
+      - company: BİTES Defence & Aerospace Technologies
         position: Summer Intern
+        summary: Software Engineering
         location: Ankara, Türkiye
         start_date: 2022-06
         end_date: 2022-08
         highlights:
-          - Built a multifunctional file transfer system with socket networking and multithreading in C++.
-          - Applied design patterns including factory method and observer patterns.
+          - Built a multithreaded, socket-based file transfer system in C++ supporting arbitrary file types via binary-mode I/O, applying factory and observer patterns to keep socket creation and worker notification decoupled and extensible.
 
     Publications:
+      - title: The Rate–Distortion–Deception Tradeoff
+        authors:
+          - "**S. Akkoc**"
+          - S. Liyanaarachchi
+          - S. Ulukus
+          - A. Yener
+        journal: Proc. 62nd Annual Allerton Conference on Communication, Control, and Computing (accepted)
+        date: 2026-09
+        url: https://arxiv.org/abs/2607.25997
+
       - title: Practical Hardware Demonstration of a Multi-Sensor Goal-Oriented Semantic Signal Processing and Communications Network
         authors:
-          - Akkoc, S.
-          - Cinar, A.
-          - Ercan, B.
-          - Kalfa, M.
-          - Arikan, O.
-        publisher: The Journal of the Franklin Institute
-        releaseDate: 2024
-        summary: First author (equal contribution) on a practical hardware implementation validating efficient multi-sensor data fusion and semantic extraction with low-cost Raspberry Pi setups.
+          - "**S. Akkoc**†"
+          - A. Çınar†
+          - B. Ercan†
+          - M. Kalfa
+          - O. Arıkan
+        journal: Journal of the Franklin Institute, vol. 362, no. 1
+        date: 2024
+        url: https://doi.org/10.1016/j.jfranklin.2024.107363
 
-    Projects:
-      - name: Li-Fi Implementation on BASYS3 Board
-        summary: Implemented a Li-Fi protocol on BASYS3 (Xilinx Artix-7) using VHDL and Python.
-        highlights:
-          - Built modular encoding and decoding for sound and text file transmission via LED/LDR.
-          - Stored encoded data in ROM and displayed decoded data on seven-segment displays.
+      - title: On the Diverse Dynamical Behaviors Arising in Deep Linear Transformers
+        authors:
+          - S. Li
+          - T. J. Maranzatto
+          - J. Peszek
+          - T. Teolis
+          - "**S. Akkoc**"
+          - K. Riedl
+          - S. Ulukus
+          - N. García Trillos
+        journal: Under review at Foundations of Computational Mathematics (FoCM)
+        date: 2026
+        url: https://arxiv.org/abs/2607.18584
 
-    Awards:
+      - title: Task-aware Compression with Distribution Matching
+        authors:
+          - S. Liyanaarachchi
+          - "**S. Akkoc**"
+          - S. Ulukus
+          - A. Yener
+        journal: Submitted to ICLR 2027
+        date: 2026
+        url: https://arxiv.org/abs/2609.35684
+
+      - title: The Role of Feed-Forward Layers in Transformer Dynamics
+        authors:
+          - T. J. Maranzatto
+          - "**S. Akkoc**"
+          - S. Ulukus
+        journal: Submitted to AISTATS 2027
+        date: 2026
+        url: https://arxiv.org/abs/2609.36230
+
+    Honors and Awards:
+      - title: Academic Excellence Award
+        awarder: Bilkent University, Dept. of Electrical and Electronics Engineering
+        date: 2025
+        summary: Awarded to top-ranked students for sustained academic distinction across the degree program.
+
+      - title: Research Excellence Award
+        awarder: Bilkent University, Dept. of Electrical and Electronics Engineering
+        date: 2025
+        summary: Recognized for research contributions culminating in a first-authored journal publication as an undergraduate.
+
       - title: Best Project Award
-        awarder: Bilkent University Department of Physics
+        awarder: Bilkent University, Dept. of Physics
         date: 2022
-        summary: Awarded for project excellence and originality.
+        summary: Selected department-wide for excellence and originality in project design and execution.
 
     Skills:
+      - name: Theory & Methods
+        keywords:
+          - Information Theory
+          - Rate–Distortion(–Perception) Theory
+          - Source Coding & Lossy Compression
+          - Task-Aware / Semantic Compression
+          - Mechanistic Interpretability
+          - Dynamical Systems & Interacting-Particle Models
+          - Probability & Stochastic Processes
+          - Statistical Signal Processing
+          - Optimization
       - name: Programming
-        keywords: C++, Python, MATLAB, VHDL
-      - name: Areas
-        keywords: Semantic Signal Processing, Communications, Computational Electromagnetics
+        keywords:
+          - Python
+          - C++
+          - MATLAB
+          - VHDL
+          - LaTeX
+      - name: ML & Scientific Computing
+        keywords:
+          - PyTorch
+          - NumPy/SciPy
+          - Matplotlib
+          - Git
+          - CST Studio
+
+    Projects:
+      - name: Li-Fi Protocol Implementation on BASYS3 (Xilinx Artix-7)
+        url: https://github.com/SemihAkkoc/LiFi
+        highlights:
+          - Implemented a complete Li-Fi communication stack in VHDL, with modular encoding/decoding of audio and text for LED transmission and LDR reception; encoded payloads stored in on-chip ROM and decoded output rendered on a seven-segment display.
 
     Languages:
-      - name: Turkish
-        summary: "Native"
-      - name: English
-        summary: "Professional working proficiency"
+      - language: Turkish
+        fluency: Native
+      - language: English
+        fluency: Fluent

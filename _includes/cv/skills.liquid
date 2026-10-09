@@ -1,32 +1,26 @@
 {% comment %}
-  Unified skills entry renderer for both formats
+  Unified skills entry renderer for both formats.
+  keywords may be a list or a comma-separated string.
 {% endcomment %}
 
-<div class="card-text font-weight-light">
+<div class="cv-skill-groups">
   {% for entry in entries %}
-    <div class="skill-item">
-      {% if entry.icon %}
-        <i class="{{ entry.icon }}"></i>
-      {% endif %}
-      <strong>
-        {{- entry.name -}}
-        {%- if entry.level %} ({{ entry.level }}){% endif %}:</strong
-      >
+    <div class="cv-skill-group">
+      <div class="cv-skill-name">
+        {% if entry.icon %}
+          <i class="{{ entry.icon }}"></i>
+        {% endif %}
+        {{ entry.name }}
+        {%- if entry.level %} ({{ entry.level }}){% endif %}
+      </div>
       {% if entry.keywords %}
-        {% for keyword in entry.keywords %}
-          {% if forloop.last %}
-            {{ keyword }}
-          {% else %}
-            {{ keyword }},
-          {% endif %}
-        {% endfor %}
+        {% assign keywords = entry.keywords | join: ', ' | split: ', ' %}
+        <ul class="chips">
+          {% for keyword in keywords %}
+            <li class="chip">{{ keyword }}</li>
+          {% endfor %}
+        </ul>
       {% endif %}
     </div>
   {% endfor %}
 </div>
-
-<style>
-  .skill-item {
-    padding: 0.5rem 0;
-  }
-</style>

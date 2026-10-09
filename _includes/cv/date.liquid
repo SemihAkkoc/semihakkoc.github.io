@@ -1,0 +1,12 @@
+{%- assign cv_d = include.d | append: '' | strip -%}
+{%- assign cv_dl = cv_d | downcase -%}
+{%- if cv_d == '' -%}
+{%- elsif cv_dl == 'present' -%}
+  Present
+{%- elsif cv_d.size == 4 -%}
+  {{ cv_d }}
+{%- elsif cv_d.size == 7 -%}
+  {{ cv_d | append: '-01' | date: '%b %Y' }}
+{%- else -%}
+  {{ cv_d | date: '%b %Y' }}
+{%- endif -%}

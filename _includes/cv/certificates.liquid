@@ -2,27 +2,27 @@
   Unified certificates entry renderer for both formats
 {% endcomment %}
 
-<ul class="card-text font-weight-light list-group list-group-flush">
+<div class="cv-entries">
   {% for entry in entries %}
-    <li class="list-group-item">
-      {% if entry.icon %}
-        <i class="{{ entry.icon }}"></i>
-      {% endif %}
-      {% if entry.url %}
-        <strong
-          ><a href="{{ entry.url }}" target="_blank">{{ entry.name }}</a></strong
-        >
-      {% else %}
-        <strong>{{ entry.name }}</strong>
-      {% endif %}
-
-      {% if entry.issuer %}
-        - <em>{{ entry.issuer }}</em>
-      {% endif %}
-
-      {% if entry.date %}
-        ({{ entry.date | split: '-' | slice: 0, 1 | join: '' }})
-      {% endif %}
-    </li>
+    <div class="cv-entry">
+      <div class="cv-entry-meta">
+        <span class="cv-date">{{ entry.date | append: '' | split: '-' | first }}</span>
+      </div>
+      <div class="cv-entry-main">
+        <h3 class="cv-entry-title" data-toc-skip>
+          {% if entry.icon %}
+            <i class="{{ entry.icon }}"></i>
+          {% endif %}
+          {% if entry.url %}
+            <a href="{{ entry.url }}">{{ entry.name }}</a>
+          {% else %}
+            {{ entry.name }}
+          {% endif %}
+        </h3>
+        {% if entry.issuer %}
+          <div class="cv-entry-org">{{ entry.issuer }}</div>
+        {% endif %}
+      </div>
+    </div>
   {% endfor %}
-</ul>
+</div>

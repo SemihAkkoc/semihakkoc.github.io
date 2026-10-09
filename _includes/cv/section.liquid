@@ -1,0 +1,73 @@
+{% comment %}
+  Renders one CV section. Expects `entries` to be assigned by the caller.
+  Params:
+    title - section heading
+    kind  - optional renderer name; inferred from the title when omitted
+{% endcomment %}
+{% assign section_kind = include.kind %}
+{% unless section_kind %}
+  {% assign t = include.title | downcase %}
+  {% if t contains 'experience' or t == 'volunteer' or t == 'work' %}
+    {% assign section_kind = 'experience' %}
+  {% elsif t contains 'education' %}
+    {% assign section_kind = 'education' %}
+  {% elsif t contains 'award' or t contains 'honor' %}
+    {% assign section_kind = 'awards' %}
+  {% elsif t contains 'publication' %}
+    {% assign section_kind = 'publications' %}
+  {% elsif t contains 'skill' %}
+    {% assign section_kind = 'skills' %}
+  {% elsif t contains 'language' %}
+    {% assign section_kind = 'languages' %}
+  {% elsif t contains 'interest' %}
+    {% assign section_kind = 'interests' %}
+  {% elsif t contains 'certificate' %}
+    {% assign section_kind = 'certificates' %}
+  {% elsif t contains 'project' %}
+    {% assign section_kind = 'projects' %}
+  {% elsif t contains 'reference' %}
+    {% assign section_kind = 'references' %}
+  {% else %}
+    {% assign section_kind = 'generic' %}
+  {% endif %}
+{% endunless %}
+
+{% if entries and entries.size > 0 %}
+  <section class="cv-section" id="{{ include.title | slugify }}">
+    <h2 class="cv-section-title">{{ include.title }}</h2>
+    {% case section_kind %}
+      {% when 'experience' %}
+        {% include cv/experience.liquid %}
+      {% when 'education' %}
+        {% include cv/education.liquid %}
+      {% when 'awards' %}
+        {% include cv/awards.liquid %}
+      {% when 'publications' %}
+        {% include cv/publications.liquid %}
+      {% when 'skills' %}
+        {% include cv/skills.liquid %}
+      {% when 'languages' %}
+        {% include cv/languages.liquid %}
+      {% when 'interests' %}
+        {% include cv/interests.liquid %}
+      {% when 'certificates' %}
+        {% include cv/certificates.liquid %}
+      {% when 'projects' %}
+        {% include cv/projects.liquid %}
+      {% when 'references' %}
+        {% include cv/references.liquid %}
+      {% else %}
+        <ul class="cv-highlights">
+          {% for entry in entries %}
+            {% if entry.bullet %}
+              <li>{{ entry.bullet | markdownify | remove: '<p>' | remove: '</p>' }}</li>
+            {% elsif entry.label %}
+              <li><strong>{{ entry.label }}:</strong> {{ entry.details }}</li>
+            {% else %}
+              <li>{{ entry | markdownify | remove: '<p>' | remove: '</p>' }}</li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+    {% endcase %}
+  </section>
+{% endif %}

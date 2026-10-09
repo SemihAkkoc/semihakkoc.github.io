@@ -1,76 +1,157 @@
 ---
 layout: default
 ---
-<div class="post">
-  <header class="post-header">
-    <h1 class="post-title">
-      {% if site.title == 'blank' %}
-        <span class="font-weight-bold">{{ site.first_name }}</span> {{ site.middle_name }}
-        {{ site.last_name }}
-      {% else %}
-        {{ site.title }}
-      {% endif %}
-    </h1>
-    <p class="desc">{{ page.subtitle }}</p>
-  </header>
+{% assign socials = site.data.socials %}
 
-  <article>
-    {% if page.profile %}
-      <div class="profile float-{% if page.profile.align == 'left' %}left{% else %}right{% endif %}">
-        {% if page.profile.image %}
-          {% assign profile_image_path = page.profile.image | prepend: 'assets/img/' %}
-          {% if page.profile.image_circular %}
-            {% assign profile_image_class = 'img-fluid z-depth-1 rounded-circle' %}
-          {% else %}
-            {% assign profile_image_class = 'img-fluid z-depth-1
-      rounded' %}
+<div class="post home">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-text">
+      {% if page.eyebrow %}
+        <p class="hero-eyebrow">{{ page.eyebrow }}</p>
+      {% endif %}
+      <h1 class="hero-name">
+        {% if page.full_name %}
+          {{ page.full_name }}
+        {% elsif site.title == 'blank' %}
+          {{ site.first_name }} {{ site.middle_name }} {{ site.last_name }}
+        {% else %}
+          {{ site.title }}
+        {% endif %}
+      </h1>
+      {% if page.subtitle %}
+        <p class="hero-lead">{{ page.subtitle }}</p>
+      {% endif %}
+
+      {% if page.profile.affiliation or page.profile.advisor %}
+        <ul class="hero-meta">
+          {% if page.profile.affiliation %}
+            <li><i class="fa-solid fa-building-columns"></i> {{ page.profile.affiliation }}</li>
           {% endif %}
-          {% capture sizes %}(min-width: {{ site.max_width }}) {{ site.max_width | minus: 30 | times: 0.3}}px, (min-width: 576px)
-      30vw, 95vw"{% endcapture %}
-          {%
-            include figure.liquid loading="eager" path=profile_image_path class=profile_image_class sizes=sizes alt=page.profile.image
-            cache_bust=true
-          %}
+          {% if page.profile.advisor %}
+            <li><i class="fa-solid fa-user-graduate"></i> Advised by {{ page.profile.advisor }}</li>
+          {% endif %}
+        </ul>
+      {% endif %}
+
+      <div class="btn-row">
+        {% for button in page.buttons %}
+          <a
+            class="btn-pill{% if button.primary %} btn-pill-primary{% endif %}"
+            href="{% if button.url contains '://' %}{{ button.url }}{% else %}{{ button.url | relative_url }}{% endif %}"
+            {% if button.url contains '.pdf' %}
+              target="_blank" rel="noopener noreferrer"
+            {% endif %}
+          >
+            {% if button.icon %}<i class="{{ button.icon }}"></i>{% endif %}
+            {{ button.label }}
+          </a>
+        {% endfor %}
+        {% if socials.email %}
+          <a class="btn-pill" href="mailto:{{ socials.email | encode_email }}">
+            <i class="fa-regular fa-envelope"></i> Email
+          </a>
         {% endif %}
-        {% if page.profile.more_info %}
-          <div class="more-info">{{ page.profile.more_info }}</div>
-        {% endif %}
+        <span class="icon-row">
+          {% if socials.scholar_userid %}
+            <a
+              class="icon-btn"
+              href="https://scholar.google.com/citations?user={{ socials.scholar_userid }}"
+              title="Google Scholar"
+              aria-label="Google Scholar"
+              ><i class="ai ai-google-scholar"></i
+            ></a>
+          {% endif %}
+          {% if socials.github_username %}
+            <a class="icon-btn" href="https://github.com/{{ socials.github_username }}" title="GitHub" aria-label="GitHub"
+              ><i class="fa-brands fa-github"></i
+            ></a>
+          {% endif %}
+          {% if socials.linkedin_username %}
+            <a
+              class="icon-btn"
+              href="https://www.linkedin.com/in/{{ socials.linkedin_username }}"
+              title="LinkedIn"
+              aria-label="LinkedIn"
+              ><i class="fa-brands fa-linkedin-in"></i
+            ></a>
+          {% endif %}
+        </span>
+      </div>
+    </div>
+
+    {% if page.profile.image %}
+      <div class="hero-photo">
+        {% assign profile_image_path = page.profile.image | prepend: 'assets/img/' %}
+        {%
+          include figure.liquid loading="eager" path=profile_image_path class="hero-img" sizes="(min-width: 768px) 300px, 70vw"
+          alt=page.full_name cache_bust=true
+        %}
       </div>
     {% endif %}
+  </section>
 
-    <div class="clearfix">{{ content }}</div>
+  {% if page.callout %}
+    <aside class="callout">
+      <i class="fa-solid fa-magnifying-glass-chart callout-icon"></i>
+      <p>{{ page.callout }}</p>
+    </aside>
+  {% endif %}
+
+  <article>
+    <!-- About -->
+    <section class="home-section">
+      <h2 class="section-title">About</h2>
+      <div class="bio">{{ content }}</div>
+      {% if page.interests %}
+        <ul class="chips">
+          {% for interest in page.interests %}
+            <li class="chip">{{ interest }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </section>
 
     <!-- News -->
     {% if page.announcements and page.announcements.enabled %}
-      <h2>
-        <a href="{{ '/news/' | relative_url }}" style="color: inherit">news</a>
-      </h2>
-      {% include news.liquid limit=true %}
+      <section class="home-section">
+        <h2 class="section-title">
+          News
+          <a class="section-more" href="{{ '/news/' | relative_url }}">All news <i class="fa-solid fa-arrow-right"></i></a>
+        </h2>
+        {% include news.liquid limit=true %}
+      </section>
     {% endif %}
 
     <!-- Latest posts -->
     {% if page.latest_posts and page.latest_posts.enabled %}
-      <h2>
-        <a href="{{ '/blog/' | relative_url }}" style="color: inherit">latest posts</a>
-      </h2>
-      {% include latest_posts.liquid %}
+      <section class="home-section">
+        <h2 class="section-title">
+          Latest posts
+          <a class="section-more" href="{{ '/blog/' | relative_url }}">All posts <i class="fa-solid fa-arrow-right"></i></a>
+        </h2>
+        {% include latest_posts.liquid %}
+      </section>
     {% endif %}
 
     <!-- Selected papers -->
     {% if page.selected_papers %}
-      <h2>
-        <a href="{{ '/publications/' | relative_url }}" style="color: inherit">selected publications</a>
-      </h2>
-      {% include selected_papers.liquid %}
+      <section class="home-section">
+        <h2 class="section-title">
+          Selected publications
+          <a class="section-more" href="{{ '/publications/' | relative_url }}">All publications <i class="fa-solid fa-arrow-right"></i></a>
+        </h2>
+        {% include selected_papers.liquid %}
+      </section>
     {% endif %}
 
     <!-- Social -->
     {% if page.social %}
-      <div class="social">
-        <div class="contact-icons">{% social_links %}</div>
-
+      <section class="home-section contact">
+        <h2 class="section-title">Get in touch</h2>
         <div class="contact-note">{{ site.contact_note }}</div>
-      </div>
+        <div class="contact-icons">{% social_links %}</div>
+      </section>
     {% endif %}
 
     {% if site.newsletter and site.newsletter.enabled and site.footer_fixed %}

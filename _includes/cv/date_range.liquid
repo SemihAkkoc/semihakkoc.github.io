@@ -1,0 +1,14 @@
+{% comment %}
+  Formats a start/end date pair as "Sep 2025 – Present".
+  Accepts "YYYY", "YYYY-MM", "YYYY-MM-DD" or "present" for either end.
+  Params: start, end
+{% endcomment %}
+{%- capture cv_start -%}{%- include cv/date.liquid d=include.start -%}{%- endcapture -%}
+{%- capture cv_end -%}{%- include cv/date.liquid d=include.end -%}{%- endcapture -%}
+{%- if cv_start != '' and cv_end != '' and cv_start != cv_end -%}
+  {{ cv_start }} – {{ cv_end }}
+{%- elsif cv_start != '' -%}
+  {{ cv_start }}
+{%- else -%}
+  {{ cv_end }}
+{%- endif -%}

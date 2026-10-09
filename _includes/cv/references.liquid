@@ -2,14 +2,18 @@
   Unified references entry renderer for both formats
 {% endcomment %}
 
-<ul class="card-text font-weight-light list-group list-group-flush">
+<div class="cv-entries">
   {% for entry in entries %}
-    <li class="list-group-item">
-      {% if entry.icon %}
-        <i class="{{ entry.icon }}"></i>
-      {% endif %}
-      <strong>{{ entry.name }}</strong>
-      <p>{{ entry.reference | markdownify | remove: '<p>' | remove: '</p>' }}</p>
-    </li>
+    <div class="cv-entry cv-entry-full">
+      <div class="cv-entry-main">
+        <h3 class="cv-entry-title" data-toc-skip>
+          {% if entry.icon %}
+            <i class="{{ entry.icon }}"></i>
+          {% endif %}
+          {{ entry.name }}
+        </h3>
+        <div class="cv-entry-text">{{ entry.reference | markdownify }}</div>
+      </div>
+    </div>
   {% endfor %}
-</ul>
+</div>

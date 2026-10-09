@@ -1,13 +1,70 @@
 ---
 ---
 
-@article{akkoc2024semantic,
+@inproceedings{akkoc2026deception,
+  abbr        = {Allerton},
   bibtex_show = {true},
   selected    = {true},
+  status      = {published},
+  title       = {The Rate--Distortion--Deception Tradeoff},
+  author      = {Akkoc, S. and Liyanaarachchi, S. and Ulukus, S. and Yener, A.},
+  booktitle   = {Proc. 62nd Annual Allerton Conference on Communication, Control, and Computing},
+  location    = {Urbana, IL, USA},
+  month       = {sep},
+  year        = {2026},
+  arxiv       = {2607.25997},
+  tldr        = {Introduces deception as a third axis of the rate–distortion–perception framework: a compressed reconstruction stays within a target fidelity of the source while provably resembling a sample from a different distribution. Relevant to generative-model watermarking, output auditing, and privacy-preserving compression.}
+}
+
+@article{akkoc2024semantic,
+  abbr        = {JFI},
+  bibtex_show = {true},
+  selected    = {true},
+  status      = {published},
   title       = {Practical Hardware Demonstration of a Multi-Sensor Goal-Oriented Semantic Signal Processing and Communications Network},
-  author      = {Akkoc, Semih and Cinar, A. and Ercan, B. and Kalfa, M. and Arikan, O.},
-  journal     = {The Journal of the Franklin Institute},
+  author      = {Akkoc†, S. and Çınar†, A. and Ercan†, B. and Kalfa, M. and Arıkan, O.},
+  annotation  = {† Equal contribution},
+  journal     = {Journal of the Franklin Institute},
   volume      = {362},
   number      = {1},
-  year        = {2024}
+  year        = {2024},
+  doi         = {10.1016/j.jfranklin.2024.107363},
+  tldr        = {A hardware realization of a goal-oriented semantic communication network, showing that low-power commodity edge devices can sustain real-time semantic extraction and multi-sensor fusion.}
+}
+
+@misc{li2026dynamical,
+  abbr        = {Preprint},
+  bibtex_show = {true},
+  selected    = {true},
+  status      = {preprint},
+  title       = {On the Diverse Dynamical Behaviors Arising in Deep Linear Transformers},
+  author      = {Li, S. and Maranzatto, T. J. and Peszek, J. and Teolis, T. and Akkoc, S. and Riedl, K. and Ulukus, S. and García Trillos, N.},
+  note        = {Under review at Foundations of Computational Mathematics (FoCM)},
+  year        = {2026},
+  arxiv       = {2607.18584},
+  tldr        = {Recasts transformer inference as an interacting-particle system and proves that, in embedding dimension two, the depth-wise dynamics reduce exactly to a generalized Kuramoto model, giving a closed-form surrogate for stacked linear self-attention and explaining token clustering, oscillation, and bifurcation.}
+}
+
+@misc{liyanaarachchi2026taskaware,
+  abbr        = {Preprint},
+  bibtex_show = {true},
+  status      = {preprint},
+  title       = {Task-aware Compression with Distribution Matching},
+  author      = {Liyanaarachchi, S. and Akkoc, S. and Ulukus, S. and Yener, A.},
+  note        = {Submitted to ICLR 2027},
+  year        = {2026},
+  arxiv       = {2609.35684},
+  tldr        = {Derives the optimal compression rate when the reconstruction is consumed by a mismatched downstream classifier, and recasts the design as a rate–distortion–perception problem with a KL constraint matching the classifier's training distribution.}
+}
+
+@misc{maranzatto2026feedforward,
+  abbr        = {Preprint},
+  bibtex_show = {true},
+  status      = {preprint},
+  title       = {The Role of Feed-Forward Layers in Transformer Dynamics},
+  author      = {Maranzatto, T. J. and Akkoc, S. and Ulukus, S.},
+  note        = {Submitted to AISTATS 2027},
+  year        = {2026},
+  arxiv       = {2609.36230},
+  tldr        = {Extends the interacting-particle analysis of transformers beyond attention to the feed-forward block, isolating how pointwise nonlinearities reshape token trajectories and which layers carry the compressive work of the network.}
 }

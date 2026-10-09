@@ -37,3 +37,6 @@
 @use "font-awesome/brands";
 @use "font-awesome/solid";
 @use "font-awesome/regular";
+
+// Site refresh (loaded last so it overrides the defaults above)
+@use "refresh";

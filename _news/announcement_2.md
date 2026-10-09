@@ -5,4 +5,4 @@ inline: true
 related_posts: false
 ---
 
-I received my Bachelor's degree from Bilkent University! :sparkles: :smile:
+Graduated from Bilkent University with a B.Sc. in Electrical and Electronics Engineering, and received the department's Academic Excellence and Research Excellence Awards. :mortar_board:

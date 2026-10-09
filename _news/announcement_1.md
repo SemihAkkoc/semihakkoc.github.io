@@ -5,4 +5,4 @@ inline: true
 related_posts: false
 ---
 
-Started my PhD at UMD.
+Started my Ph.D. in Electrical and Computer Engineering at the University of Maryland, College Park, advised by [Prof. Sennur Ulukus](https://user.eng.umd.edu/~ulukus/).
