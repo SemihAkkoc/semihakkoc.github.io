@@ -2,6 +2,7 @@
 layout: page
 permalink: /publications/
 title: Publications
+heading: Papers & Preprints
 description: Papers and preprints, newest first.
 nav: true
 nav_order: 2

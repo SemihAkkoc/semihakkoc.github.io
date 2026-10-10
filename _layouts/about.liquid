@@ -2,160 +2,336 @@
 layout: default
 ---
 {% assign socials = site.data.socials %}
+{% assign cv = site.data.cv.cv %}
+{% assign n = 0 %}
 
-<div class="post home">
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-text">
-      {% if page.eyebrow %}
-        <p class="hero-eyebrow">{{ page.eyebrow }}</p>
-      {% endif %}
-      <h1 class="hero-name">
-        {% if page.full_name %}
-          {{ page.full_name }}
-        {% elsif site.title == 'blank' %}
-          {{ site.first_name }} {{ site.middle_name }} {{ site.last_name }}
-        {% else %}
-          {{ site.title }}
-        {% endif %}
-      </h1>
-      {% if page.subtitle %}
-        <p class="hero-lead">{{ page.subtitle }}</p>
-      {% endif %}
-
-      {% if page.profile.affiliation or page.profile.advisor %}
-        <ul class="hero-meta">
-          {% if page.profile.affiliation %}
-            <li><i class="fa-solid fa-building-columns"></i> {{ page.profile.affiliation }}</li>
-          {% endif %}
-          {% if page.profile.advisor %}
-            <li><i class="fa-solid fa-user-graduate"></i> Advised by {{ page.profile.advisor }}</li>
-          {% endif %}
-        </ul>
-      {% endif %}
-
-      <div class="btn-row">
-        {% for button in page.buttons %}
-          <a
-            class="btn-pill{% if button.primary %} btn-pill-primary{% endif %}"
-            href="{% if button.url contains '://' %}{{ button.url }}{% else %}{{ button.url | relative_url }}{% endif %}"
-            {% if button.url contains '.pdf' %}
-              target="_blank" rel="noopener noreferrer"
-            {% endif %}
-          >
-            {% if button.icon %}<i class="{{ button.icon }}"></i>{% endif %}
-            {{ button.label }}
-          </a>
+<!-- Hero -->
+<header class="ed-hero" id="top">
+  <div class="ed-hero-content">
+    {% if page.hero.status %}
+      <a class="ed-hero-status" href="#contact"><span class="ed-dot"></span>{{ page.hero.status }}</a>
+    {% endif %}
+    {% if page.hero.label %}
+      <p class="ed-hero-label">{{ page.hero.label }}</p>
+    {% endif %}
+    <h1 class="ed-hero-name">{{ page.full_name | default: site.title }}</h1>
+    {% if page.hero.title %}
+      <p class="ed-hero-title">{{ page.hero.title }}</p>
+    {% endif %}
+    {% if page.hero.tags %}
+      <div class="ed-hero-tags">
+        {% for tag in page.hero.tags %}
+          <span class="ed-hero-tag">{{ tag }}</span>
         {% endfor %}
-        {% if socials.email %}
-          <a class="btn-pill" href="mailto:{{ socials.email | encode_email }}">
-            <i class="fa-regular fa-envelope"></i> Email
-          </a>
+      </div>
+    {% endif %}
+    <div class="ed-hero-social">
+      {% if socials.email %}
+        <a href="mailto:{{ socials.email | encode_email }}" aria-label="Email" title="Email"><i class="fa-regular fa-envelope"></i></a>
+      {% endif %}
+      {% if socials.scholar_userid %}
+        <a href="https://scholar.google.com/citations?user={{ socials.scholar_userid }}" aria-label="Google Scholar" title="Google Scholar"
+          ><i class="ai ai-google-scholar"></i
+        ></a>
+      {% endif %}
+      {% if socials.linkedin_username %}
+        <a href="https://www.linkedin.com/in/{{ socials.linkedin_username }}" aria-label="LinkedIn" title="LinkedIn"
+          ><i class="fa-brands fa-linkedin-in"></i
+        ></a>
+      {% endif %}
+      {% if socials.github_username %}
+        <a href="https://github.com/{{ socials.github_username }}" aria-label="GitHub" title="GitHub"><i class="fa-brands fa-github"></i></a>
+      {% endif %}
+    </div>
+    <div class="ed-hero-links">
+      {% if socials.cv_pdf %}
+        <a href="{{ socials.cv_pdf | relative_url }}" class="ed-pill-link" target="_blank" rel="noopener noreferrer">CV <i class="fa-solid fa-arrow-down"></i></a>
+      {% endif %}
+      {% if page.resume_pdf %}
+        <a href="{{ page.resume_pdf | relative_url }}" class="ed-pill-link" target="_blank" rel="noopener noreferrer"
+          >Resume <i class="fa-solid fa-arrow-down"></i
+        ></a>
+      {% endif %}
+    </div>
+  </div>
+  <a class="ed-hero-scroll" href="#about" aria-label="Scroll to content">
+    <span>Scroll</span>
+    <span class="ed-hero-scroll-line"></span>
+  </a>
+</header>
+
+<!-- 01 · About -->
+{% assign n = n | plus: 1 %}
+<section class="ed-section" id="about">
+  <div class="ed-container">
+    {% include section_header.liquid n=n label='About' title='Background' %}
+    <div class="ed-about-grid">
+      <div class="ed-about-portrait reveal reveal-delay-1">
+        {% if page.profile.image %}
+          <div class="ed-about-avatar">
+            {% assign profile_image_path = page.profile.image | prepend: 'assets/img/' %}
+            {%
+              include figure.liquid loading="eager" path=profile_image_path class="ed-about-avatar-img" sizes="(min-width: 900px) 320px, 280px"
+              alt=page.full_name cache_bust=true
+            %}
+          </div>
         {% endif %}
-        <span class="icon-row">
-          {% if socials.scholar_userid %}
-            <a
-              class="icon-btn"
-              href="https://scholar.google.com/citations?user={{ socials.scholar_userid }}"
-              title="Google Scholar"
-              aria-label="Google Scholar"
-              ><i class="ai ai-google-scholar"></i
-            ></a>
+        {% if page.profile.details %}
+          <div class="ed-about-details">
+            {% for detail in page.profile.details %}
+              <div class="ed-about-detail">
+                <span class="ed-about-detail-label">{{ detail.label }}</span>
+                <span class="ed-about-detail-value">{{ detail.value }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="ed-about-bio reveal reveal-delay-2">
+        {{ content }}
+
+        {% assign education = cv.sections.Education %}
+        {% if education %}
+          <div class="ed-about-education">
+            <p class="ed-eyebrow">Education</p>
+            {% for entry in education %}
+              <div class="ed-edu-item">
+                <div class="ed-edu-dot"></div>
+                <div class="ed-edu-content">
+                  <h4>
+                    {{ entry.degree }}
+                    {%- if entry.area %} in {{ entry.area }}{% endif -%}
+                    , {{ entry.institution }}
+                  </h4>
+                  <p>
+                    {% if entry.location %}{{ entry.location }} · {% endif -%}
+                    {%- include cv/date_range.liquid start=entry.start_date end=entry.end_date -%}
+                  </p>
+                  {% if entry.highlights %}
+                    <p class="ed-edu-distinction">
+                      {% for item in entry.highlights limit: 2 %}
+                        {{- item -}}
+                        {%- unless forloop.last %} · {% endunless -%}
+                      {% endfor %}
+                    </p>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="ed-about-actions">
+          {% if socials.cv_pdf %}
+            <a href="{{ socials.cv_pdf | relative_url }}" target="_blank" rel="noopener noreferrer" class="ed-btn">
+              <i class="fa-solid fa-arrow-down"></i> Download CV
+            </a>
           {% endif %}
-          {% if socials.github_username %}
-            <a class="icon-btn" href="https://github.com/{{ socials.github_username }}" title="GitHub" aria-label="GitHub"
-              ><i class="fa-brands fa-github"></i
-            ></a>
+          {% if page.resume_pdf %}
+            <a href="{{ page.resume_pdf | relative_url }}" target="_blank" rel="noopener noreferrer" class="ed-btn ed-btn-outline">
+              <i class="fa-solid fa-arrow-down"></i> Resume
+            </a>
           {% endif %}
-          {% if socials.linkedin_username %}
-            <a
-              class="icon-btn"
-              href="https://www.linkedin.com/in/{{ socials.linkedin_username }}"
-              title="LinkedIn"
-              aria-label="LinkedIn"
-              ><i class="fa-brands fa-linkedin-in"></i
-            ></a>
-          {% endif %}
-        </span>
+          <a href="{{ '/cv/' | relative_url }}" class="ed-text-link">View CV online <span>&rarr;</span></a>
+        </div>
       </div>
     </div>
+  </div>
+</section>
 
-    {% if page.profile.image %}
-      <div class="hero-photo">
-        {% assign profile_image_path = page.profile.image | prepend: 'assets/img/' %}
-        {%
-          include figure.liquid loading="eager" path=profile_image_path class="hero-img" sizes="(min-width: 768px) 300px, 70vw"
-          alt=page.full_name cache_bust=true
-        %}
-      </div>
-    {% endif %}
-  </section>
-
-  {% if page.callout %}
-    <aside class="callout">
-      <i class="fa-solid fa-magnifying-glass-chart callout-icon"></i>
-      <p>{{ page.callout }}</p>
-    </aside>
-  {% endif %}
-
-  <article>
-    <!-- About -->
-    <section class="home-section">
-      <h2 class="section-title">About</h2>
-      <div class="bio">{{ content }}</div>
-      {% if page.interests %}
-        <ul class="chips">
-          {% for interest in page.interests %}
-            <li class="chip">{{ interest }}</li>
-          {% endfor %}
-        </ul>
+<!-- 02 · Research -->
+{% if page.research %}
+  {% assign n = n | plus: 1 %}
+  <section class="ed-section ed-section-alt" id="research">
+    <div class="ed-container">
+      {% include section_header.liquid n=n label='Research' title='Current Focus' %}
+      {% if page.research.intro %}
+        <p class="ed-research-intro reveal reveal-delay-1">{{ page.research.intro }}</p>
       {% endif %}
-    </section>
+      <div class="ed-research-areas">
+        {% for area in page.research.areas %}
+          <div class="ed-card ed-research-area reveal reveal-delay-{{ forloop.index }}">
+            <h4>{{ area.title }}</h4>
+            <p>{{ area.text }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+{% endif %}
 
-    <!-- News -->
-    {% if page.announcements and page.announcements.enabled %}
-      <section class="home-section">
-        <h2 class="section-title">
-          News
-          <a class="section-more" href="{{ '/news/' | relative_url }}">All news <i class="fa-solid fa-arrow-right"></i></a>
-        </h2>
-        {% include news.liquid limit=true %}
-      </section>
-    {% endif %}
+<!-- 03 · Publications -->
+{% assign n = n | plus: 1 %}
+<section class="ed-section" id="publications">
+  <div class="ed-container">
+    {% include section_header.liquid n=n label='Publications' title='Papers & Preprints' %}
+    <div class="publications ed-papers">
+      {% bibliography --group_by none %}
+    </div>
+    <div class="ed-section-footer reveal">
+      {% if socials.scholar_userid %}
+        <a class="ed-text-link" href="https://scholar.google.com/citations?user={{ socials.scholar_userid }}"
+          >Full record on Google Scholar <span>↗</span></a
+        >
+      {% endif %}
+      <span class="ed-footnote">† Equal contribution</span>
+    </div>
+  </div>
+</section>
 
-    <!-- Latest posts -->
-    {% if page.latest_posts and page.latest_posts.enabled %}
-      <section class="home-section">
-        <h2 class="section-title">
-          Latest posts
-          <a class="section-more" href="{{ '/blog/' | relative_url }}">All posts <i class="fa-solid fa-arrow-right"></i></a>
-        </h2>
-        {% include latest_posts.liquid %}
-      </section>
-    {% endif %}
+<!-- 04 · Experience -->
+{% assign research_exp = cv.sections['Research Experience'] %}
+{% assign industry_exp = cv.sections['Industry Experience'] %}
+{% if research_exp or industry_exp %}
+  {% assign n = n | plus: 1 %}
+  <section class="ed-section ed-section-alt" id="experience">
+    <div class="ed-container">
+      {% include section_header.liquid n=n label='Experience' title='Research and Industry' %}
+      {% if research_exp %}
+        <div class="ed-experience-block">
+          <h3 class="ed-experience-title reveal">Research Experience</h3>
+          {% include timeline.liquid entries=research_exp %}
+        </div>
+      {% endif %}
+      {% if industry_exp %}
+        <div class="ed-experience-block">
+          <h3 class="ed-experience-title reveal">Industry Experience</h3>
+          {% include timeline.liquid entries=industry_exp %}
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endif %}
 
-    <!-- Selected papers -->
-    {% if page.selected_papers %}
-      <section class="home-section">
-        <h2 class="section-title">
-          Selected publications
-          <a class="section-more" href="{{ '/publications/' | relative_url }}">All publications <i class="fa-solid fa-arrow-right"></i></a>
-        </h2>
-        {% include selected_papers.liquid %}
-      </section>
-    {% endif %}
+<!-- 05 · Projects -->
+{% if page.projects %}
+  {% assign n = n | plus: 1 %}
+  <section class="ed-section" id="projects">
+    <div class="ed-container">
+      {% include section_header.liquid n=n label='Projects' title='Selected Projects' %}
+      <div class="ed-projects-grid">
+        {% for project in page.projects %}
+          {% capture project_inner %}
+            <div class="ed-project-body">
+              {% if project.tag %}<span class="ed-project-tag">{{ project.tag }}</span>{% endif %}
+              <h3>
+                {{ project.name }}
+                {% if project.url %}<span class="ed-project-arrow">↗</span>{% endif %}
+              </h3>
+              <p>{{ project.text }}</p>
+              {% if project.tech %}
+                <div class="ed-project-tech">
+                  {% for t in project.tech %}<span>{{ t }}</span>{% endfor %}
+                </div>
+              {% endif %}
+            </div>
+          {% endcapture %}
+          {% assign delay = forloop.index0 | modulo: 2 %}
+          {% if project.url %}
+            <a href="{{ project.url }}" class="ed-card ed-project-card ed-project-link reveal reveal-delay-{{ delay }}">{{ project_inner }}</a>
+          {% else %}
+            <div class="ed-card ed-project-card reveal reveal-delay-{{ delay }}">{{ project_inner }}</div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="ed-section-footer reveal">
+        <a class="ed-text-link" href="{{ '/repositories/' | relative_url }}">More code on GitHub <span>&rarr;</span></a>
+      </div>
+    </div>
+  </section>
+{% endif %}
 
-    <!-- Social -->
-    {% if page.social %}
-      <section class="home-section contact">
-        <h2 class="section-title">Get in touch</h2>
-        <div class="contact-note">{{ site.contact_note }}</div>
-        <div class="contact-icons">{% social_links %}</div>
-      </section>
-    {% endif %}
+<!-- 06 · Awards -->
+{% assign awards = cv.sections['Honors and Awards'] %}
+{% if awards %}
+  {% assign n = n | plus: 1 %}
+  <section class="ed-section ed-section-alt" id="awards">
+    <div class="ed-container">
+      {% include section_header.liquid n=n label='Awards' title='Honors & Awards' %}
+      <div class="ed-awards-grid">
+        {% for award in awards %}
+          {% assign delay = forloop.index0 | modulo: 2 %}
+          <div class="ed-card ed-award-item reveal reveal-delay-{{ delay }}">
+            <span class="ed-award-year">{{ award.date }}</span>
+            <div class="ed-award-content">
+              <h4>{{ award.title }}</h4>
+              <p>{{ award.awarder }}</p>
+              {% if award.summary %}<p class="ed-award-summary">{{ award.summary }}</p>{% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+{% endif %}
 
-    {% if site.newsletter and site.newsletter.enabled and site.footer_fixed %}
-      {% include newsletter.liquid center=true %}
-    {% endif %}
-  </article>
-</div>
+<!-- 07 · News -->
+{% if page.announcements and page.announcements.enabled %}
+  {% assign n = n | plus: 1 %}
+  <section class="ed-section" id="news">
+    <div class="ed-container">
+      {% include section_header.liquid n=n label='News' title='Recent Updates' %}
+      <div class="reveal reveal-delay-1">{% include news.liquid limit=true %}</div>
+      <div class="ed-section-footer reveal">
+        <a class="ed-text-link" href="{{ '/news/' | relative_url }}">All news <span>&rarr;</span></a>
+      </div>
+    </div>
+  </section>
+{% endif %}
+
+<!-- 08 · Contact -->
+{% assign n = n | plus: 1 %}
+<section class="ed-section ed-section-alt" id="contact">
+  <div class="ed-container">
+    {% include section_header.liquid n=n label='Contact' title='Get in Touch' %}
+    <div class="ed-contact-grid">
+      <div class="ed-contact-text reveal reveal-delay-1">
+        {% if page.contact.heading %}<h3>{{ page.contact.heading }}</h3>{% endif %}
+        {% if page.contact.text %}<p>{{ page.contact.text }}</p>{% endif %}
+      </div>
+      <div class="ed-contact-links reveal reveal-delay-2">
+        {% if socials.email %}
+          <a href="mailto:{{ socials.email | encode_email }}" class="ed-contact-link">
+            <i class="fa-regular fa-envelope"></i>
+            <span class="ed-contact-link-info">
+              <span class="ed-contact-link-label">Email</span>
+              <span class="ed-contact-link-value">{{ socials.email }}</span>
+            </span>
+            <span class="ed-contact-link-arrow">&rarr;</span>
+          </a>
+        {% endif %}
+        {% if socials.scholar_userid %}
+          <a href="https://scholar.google.com/citations?user={{ socials.scholar_userid }}" class="ed-contact-link">
+            <i class="ai ai-google-scholar"></i>
+            <span class="ed-contact-link-info">
+              <span class="ed-contact-link-label">Google Scholar</span>
+              <span class="ed-contact-link-value">{{ cv.name }}</span>
+            </span>
+            <span class="ed-contact-link-arrow">&rarr;</span>
+          </a>
+        {% endif %}
+        {% if socials.linkedin_username %}
+          <a href="https://www.linkedin.com/in/{{ socials.linkedin_username }}" class="ed-contact-link">
+            <i class="fa-brands fa-linkedin-in"></i>
+            <span class="ed-contact-link-info">
+              <span class="ed-contact-link-label">LinkedIn</span>
+              <span class="ed-contact-link-value">{{ socials.linkedin_username }}</span>
+            </span>
+            <span class="ed-contact-link-arrow">&rarr;</span>
+          </a>
+        {% endif %}
+        {% if socials.github_username %}
+          <a href="https://github.com/{{ socials.github_username }}" class="ed-contact-link">
+            <i class="fa-brands fa-github"></i>
+            <span class="ed-contact-link-info">
+              <span class="ed-contact-link-label">GitHub</span>
+              <span class="ed-contact-link-value">{{ socials.github_username }}</span>
+            </span>
+            <span class="ed-contact-link-arrow">&rarr;</span>
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>

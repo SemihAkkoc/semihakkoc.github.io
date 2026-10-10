@@ -1,0 +1,26 @@
+{% comment %}
+  Vertical timeline of CV entries (Experience sections of _data/cv.yml).
+  Uses each entry's `blurb` when present, otherwise its first highlight.
+  Params: entries
+{% endcomment %}
+<div class="ed-timeline">
+  {% for entry in include.entries %}
+    <div class="ed-timeline-item reveal">
+      <div class="ed-timeline-dot"></div>
+      <span class="ed-timeline-date">
+        {%- include cv/date_range.liquid start=entry.start_date end=entry.end_date -%}
+        {%- if entry.location %} · {{ entry.location }}{% endif -%}
+      </span>
+      <h3 class="ed-timeline-role">{{ entry.position }}</h3>
+      <p class="ed-timeline-company">
+        {{- entry.company -}}
+        {%- if entry.summary %} · {{ entry.summary }}{% endif -%}
+      </p>
+      {% if entry.blurb %}
+        <p class="ed-timeline-desc">{{ entry.blurb }}</p>
+      {% elsif entry.highlights %}
+        <p class="ed-timeline-desc">{{ entry.highlights.first | markdownify | strip_html | strip }}</p>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>

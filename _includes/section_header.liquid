@@ -1,0 +1,14 @@
+{% comment %}
+  Numbered section header: "01 · About" / serif title / short rule.
+  Params: n (section number), label, title
+{% endcomment %}
+{% if include.n < 10 %}
+  {% assign section_num = include.n | prepend: '0' %}
+{% else %}
+  {% assign section_num = include.n %}
+{% endif %}
+<div class="ed-section-header reveal">
+  <span class="ed-section-number">{% if include.n %}{{ section_num }} · {% endif %}{{ include.label }}</span>
+  <h2 class="ed-section-title">{{ include.title }}</h2>
+  <hr class="ed-section-rule">
+</div>

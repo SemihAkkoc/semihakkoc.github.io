@@ -55,6 +55,7 @@ cv:
     Research Experience:
       - company: University of Maryland, College Park
         position: Graduate Research Assistant
+        blurb: Developing information-theoretic and dynamical-systems tools for compressing and interpreting transformers, from task-aware rate allocation to mechanistic analysis of attention and feed-forward blocks. # short version shown on the home page
         summary: Information Theory & Machine Learning
         location: College Park, MD
         start_date: 2025-09
@@ -65,6 +66,7 @@ cv:
 
       - company: Bilkent University
         position: Undergraduate Researcher
+        blurb: Built the embedded multi-sensor demonstrator behind a journal paper on goal-oriented semantic signal processing, and implemented a method-of-moments solver for plane-wave scattering by a conducting strip. # short version shown on the home page
         summary: Semantic Signal Processing (Prof. Orhan Arıkan) · Computational Electromagnetics (Prof. Vakur B. Ertürk)
         location: Ankara, Türkiye
         start_date: 2023-02
@@ -77,6 +79,7 @@ cv:
     Industry Experience:
       - company: ASELSAN
         position: Summer Intern
+        blurb: Designed a suspended ring resonator model in MATLAB and CST Studio that estimates dielectric constant and loss tangent, a low-cost alternative to commercial material characterization. # short version shown on the home page
         summary: RF & Microwave Systems
         location: Ankara, Türkiye
         start_date: 2024-08
@@ -87,6 +90,7 @@ cv:
 
       - company: Huawei
         position: R&D Intern
+        blurb: Prototyped a two-node semantic communication network on Raspberry Pi that cut transmission from a 10 Mbps video stream to about 10 bps of task-relevant tokens, and improved multi-sensor integration accuracy by 67.2%. # short version shown on the home page
         summary: Semantic Communications
         location: Ankara, Türkiye
         start_date: 2023-06
@@ -97,6 +101,7 @@ cv:
 
       - company: BİTES Defence & Aerospace Technologies
         position: Summer Intern
+        blurb: Built a multithreaded, socket-based file transfer system in C++, using factory and observer patterns to keep socket creation and worker notification decoupled. # short version shown on the home page
         summary: Software Engineering
         location: Ankara, Türkiye
         start_date: 2022-06

@@ -1,0 +1,19 @@
+# Top navigation. On the home page these scroll to the matching section;
+# on every other page they link back to that section of the home page.
+sections:
+  - title: About
+    id: about
+  - title: Research
+    id: research
+  - title: Publications
+    id: publications
+  - title: Experience
+    id: experience
+  - title: Projects
+    id: projects
+  - title: Awards
+    id: awards
+  - title: News
+    id: news
+  - title: Contact
+    id: contact

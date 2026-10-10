@@ -1,52 +1,14 @@
 ---
 ---
-<div class="row">
-  {% if site.enable_publication_thumbnails %}
-    <div class="col col-sm-2 abbr">
-      {%- if entry.abbr -%}
-        {%- if site.data.venues[entry.abbr] -%}
-          {% assign venue_style = null %}
-          {% if site.data.venues[entry.abbr].color != blank %}
-            {% assign venue_style = site.data.venues[entry.abbr].color | prepend: 'style="background-color:' | append: '"' %}
-          {%- endif -%}
-          <abbr
-            class="badge rounded w-100"
-            {% if venue_style %}
-              {{ venue_style }}
-            {% endif -%}
-          >
-            {% if site.data.venues[entry.abbr].url %}
-              <a href="{{ site.data.venues[entry.abbr].url }}">{{ entry.abbr }}</a>
-            {% else %}
-              <div>{{- entry.abbr -}}</div>
-            {% endif %}
-          </abbr>
-        {% else %}
-          <abbr class="badge rounded w-100 abbr-{{ entry.abbr | slugify }}">{{ entry.abbr }}</abbr>
-        {% endif %}
-      {% endif %}
-      {% if entry.preview %}
-        {% if entry.preview contains '://' %}
-          <img class="preview z-depth-1 rounded" src="{{ entry.preview }}">
-        {% else %}
-          {% assign entry_path = entry.preview | prepend: '/assets/img/publication_preview/' %}
-          {%
-            include figure.liquid
-            loading="eager"
-            path=entry_path
-            sizes = "200px"
-            class="preview z-depth-1 rounded"
-            zoomable=true
-            avoid_scaling=true
-            alt=entry.preview
-          %}
-        {% endif %}
-      {% endif %}
-    </div>
-  {% endif %}
-
-  <!-- Entry bib key -->
-  <div id="{{ entry.key }}" class="{% if site.enable_publication_thumbnails %}col-sm-10{% else %}col-sm-12{% endif %}">
+{% comment %}
+  Publication card. Optional custom fields: badge (status pill, e.g. "Accepted"),
+  venue (short venue line), tldr (one-line summary).
+{% endcomment %}
+<div class="ed-paper reveal">
+  <div class="ed-paper-inner" id="{{ entry.key }}">
+    {% if entry.badge %}
+      <span class="ed-paper-badge ed-badge-{{ entry.badge | slugify }}">{{ entry.badge }}</span>
+    {% endif %}
     <!-- Title -->
     <div class="title">{{ entry.title }}</div>
     <!-- Author -->
@@ -136,16 +98,6 @@
           {{- more_authors_hide -}}
         </span>
       {% endif %}
-      {% if entry.annotation %}
-        <i
-          class="fa-solid fa-circle-info ml-1"
-          data-toggle="popover"
-          data-placement="top"
-          data-html="true"
-          data-content="{{ entry.annotation | escape }}"
-        >
-        </i>
-      {% endif %}
     </div>
 
     <!-- Journal/Book title and date -->
@@ -180,13 +132,18 @@
     {% endif %}
     {% assign entrytype_text = entrytype | strip_html | strip %}
     {% capture periodical %}{{ entrytype }}{% if entrytype_text != "" and entryyear != "" %}, {% endif %}{{ entrymonth }}{{ entryyear }}{% endcapture %}
-    <div class="periodical">
-      {{ periodical | strip }}
+    {% capture venue %}{% if entry.venue %}{{ entry.venue }}{% else %}{{ entrytype | strip_html | strip }}{% endif %}{% endcapture %}
+    {% assign venue = venue | strip %}
+    <div class="periodical ed-paper-meta">
+      {% if venue != '' %}<span class="ed-paper-venue">{{ venue }}</span>{% endif %}
+      {% if venue != '' and entryyear != '' %}<span class="ed-paper-sep">·</span>{% endif %}
+      {% if entryyear != '' %}<span class="ed-paper-year">{{ entrymonth | strip }}{{ entryyear }}</span>{% endif %}
     </div>
+    {% if entry.annotation %}
+      <p class="ed-paper-note">{{ entry.annotation }}</p>
+    {% endif %}
     {% if entry.note %}
-      <div class="periodical pub-status">
-        {{ entry.note | strip }}
-      </div>
+      <p class="ed-paper-note">{{ entry.note | strip }}</p>
     {% endif %}
     {% if entry.tldr %}
       <p class="tldr">{{ entry.tldr }}</p>

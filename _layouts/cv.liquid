@@ -22,32 +22,34 @@ layout: default
   {% assign render_jsonresume = true %}
 {% endif %}
 
-<div class="post cv-page">
-  <header class="post-header">
-    <h1 class="post-title">{{ page.title }}</h1>
+<div class="post ed-page cv-page">
+  <header class="post-header ed-page-header">
+    <span class="ed-section-number">{{ page.label | default: page.title }}</span>
+    <h1 class="post-title">{{ page.heading | default: page.title }}</h1>
+    <hr class="ed-section-rule">
     {% if page.description %}
       <p class="post-description">{{ page.description }}</p>
     {% endif %}
     {% if page.cv_pdf or page.resume_pdf %}
-      <div class="btn-row">
+      <div class="ed-header-actions">
         {% if page.cv_pdf %}
           <a
-            class="btn-pill btn-pill-primary"
+            class="ed-btn"
             href="{% if page.cv_pdf contains '://' %}{{ page.cv_pdf }}{% else %}{{ page.cv_pdf | relative_url }}{% endif %}"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <i class="fa-solid fa-file-arrow-down"></i> Full CV (PDF)
+            <i class="fa-solid fa-arrow-down"></i> Full CV (PDF)
           </a>
         {% endif %}
         {% if page.resume_pdf %}
           <a
-            class="btn-pill"
+            class="ed-btn ed-btn-outline"
             href="{% if page.resume_pdf contains '://' %}{{ page.resume_pdf }}{% else %}{{ page.resume_pdf | relative_url }}{% endif %}"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <i class="fa-regular fa-file-lines"></i> One-page resume
+            <i class="fa-solid fa-arrow-down"></i> One-page resume
           </a>
         {% endif %}
       </div>

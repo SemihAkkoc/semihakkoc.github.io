@@ -8,10 +8,14 @@ layout: default
   </style>
 {% endif %}
 
-<div class="post">
-  <header class="post-header">
-    <h1 class="post-title">{{ page.title }}</h1>
-    <p class="post-description">{{ page.description }}</p>
+<div class="post ed-page">
+  <header class="post-header ed-page-header">
+    <span class="ed-section-number">{{ page.label | default: page.title }}</span>
+    <h1 class="post-title">{{ page.heading | default: page.title }}</h1>
+    <hr class="ed-section-rule">
+    {% if page.description %}
+      <p class="post-description">{{ page.description }}</p>
+    {% endif %}
   </header>
 
   <article>
