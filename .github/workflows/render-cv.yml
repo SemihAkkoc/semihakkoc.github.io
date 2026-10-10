@@ -1,14 +1,7 @@
 name: Render a CV
+# Manual only: the site links the hand-made PDFs in assets/pdf/, and _data/cv.yml
+# uses fields for the website's CV page that RenderCV does not accept.
 on:
-  push:
-    branches:
-      - main
-      - master
-    paths:
-      - "_data/cv.yml"
-      - "assets/rendercv/design.yaml"
-      - "assets/rendercv/locale.yaml"
-      - "assets/rendercv/settings.yaml"
   workflow_call:
   workflow_dispatch:
 permissions:

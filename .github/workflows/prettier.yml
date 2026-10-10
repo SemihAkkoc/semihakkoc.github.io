@@ -1,14 +1,8 @@
 name: Prettier code formatter
 
+# Manual only, so it never pushes formatting commits on top of your own pushes.
 on:
-  pull_request:
-    branches:
-      - master
-      - main
-  push:
-    branches:
-      - master
-      - main
+  workflow_dispatch:
 
 jobs:
   format:
@@ -16,7 +10,6 @@ jobs:
     permissions:
       # Give the action permission to write back to the repository
       contents: write
-      workflows: write
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
