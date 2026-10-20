@@ -1,0 +1,459 @@
+---
+layout: proposal
+permalink: /cmsc838b/
+title: CMSC 838B Project Proposal
+description: >
+  Course project proposal for CMSC 838B (Fall 2026): how task similarity shapes catastrophic forgetting
+  under full fine-tuning and LoRA, and whether gradient alignment and parameter sensitivity can predict it.
+talk_minutes: 5 # length of the in-class talk; drives the timer in presentation mode
+---
+
+<!-- Title -->
+<section class="prop-slide prop-title" id="proposal-title">
+  <div class="prop-inner">
+    <p class="ed-hero-label">CMSC 838B &middot; Course Project Proposal &middot; Fall 2026</p>
+    <h1 class="prop-title-main">Predicting <em>forgetting</em> from gradients</h1>
+    <p class="prop-title-sub">
+      How task similarity shapes catastrophic forgetting under full fine-tuning and LoRA, and whether gradient alignment and
+      parameter sensitivity can predict it before it happens.
+    </p>
+    <p class="prop-byline">
+      <strong>Semih Akko&ccedil;</strong> &middot; ECE Ph.D., University of Maryland &middot; Instructor: Prof. Ming C. Lin
+    </p>
+    <div class="ed-hero-tags">
+      <span class="ed-hero-tag">Continual Learning</span>
+      <span class="ed-hero-tag">LoRA</span>
+      <span class="ed-hero-tag">Gradient Alignment</span>
+      <span class="ed-hero-tag">Sensitivity Analysis</span>
+      <span class="ed-hero-tag">Automatic Differentiation</span>
+    </div>
+    <div class="prop-actions prop-detail">
+      <a href="#present-1" class="ed-btn"><i class="fa-solid fa-play"></i> Present &middot; {{ page.talk_minutes }} min</a>
+      <a href="#motivation" class="ed-text-link">Read the proposal <span>&darr;</span></a>
+    </div>
+    <p class="prop-hint prop-detail">
+      <kbd>P</kbd> present &middot; <kbd>&larr;</kbd> <kbd>&rarr;</kbd> move &middot; <kbd>F</kbd> full screen &middot; <kbd>T</kbd> restart
+      timer &middot; <kbd>Esc</kbd> exit
+    </p>
+  </div>
+</section>
+
+<!-- 01 · Motivation -->
+<section class="prop-slide prop-slide--alt" id="motivation">
+  <div class="prop-inner">
+    {% include section_header.liquid n=1 label='Motivation' title='Fine-tuning learns the new task and erodes the old one' %}
+    <p class="prop-lead reveal">
+      Pretrained models are adapted again and again: to a domain, then an instruction set, then a safety fix. Each round can
+      overwrite what earlier rounds taught. This is <strong>catastrophic forgetting</strong>, and today we mostly measure it after
+      the damage is done.
+    </p>
+    <div class="prop-grid prop-grid--3">
+      <div class="ed-card prop-card prop-question reveal reveal-delay-1">
+        <span class="prop-label">Q1 &middot; Task similarity</span>
+        <p>How does the similarity between the old and the new task change how much is forgotten?</p>
+      </div>
+      <div class="ed-card prop-card prop-question reveal reveal-delay-2">
+        <span class="prop-label">Q2 &middot; Full fine-tuning vs. LoRA</span>
+        <p>Does a low-rank update forget differently from updating every weight, and why?</p>
+      </div>
+      <div class="ed-card prop-card prop-question reveal reveal-delay-3">
+        <span class="prop-label">Q3 &middot; Prediction</span>
+        <p>Can gradient alignment and parameter sensitivity, computed before fine-tuning, predict how much is forgotten, and where?</p>
+      </div>
+    </div>
+
+    <div class="prop-more prop-detail reveal">
+      <p class="ed-eyebrow">In more detail</p>
+      <h4>Background</h4>
+      <p>
+        Sequential fine-tuning is how large models are kept up to date, and parameter-efficient methods such as LoRA
+        <a class="prop-cite" href="#ref-hu22">Hu et al. 2022</a> have made it cheap enough to do routinely. Every update still moves
+        weights that earlier skills depend on. Continual learning has studied forgetting for years, mostly on task sequences learned
+        from scratch. In fine-tuning, the "old task" is whatever the model already knows, and the question is how one more update
+        interacts with it.
+      </p>
+      <h4>Why this is a differentiable-programming question</h4>
+      <p>
+        Forgetting is a function of the fine-tuning trajectory, and the quantities that might predict it are all derivatives:
+        inner products between task gradients (first order), Hessian&ndash;vector products and Fisher information (second order),
+        and hypergradients through an unrolled training run. Automatic differentiation makes each of them computable at the scale
+        of real models. In this project the training loop itself is the differentiable program under study.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- 02 · State of the art -->
+<section class="prop-slide" id="state-of-the-art">
+  <div class="prop-inner">
+    {% include section_header.liquid n=2 label='State of the art' title='What we know, and what is still open' %}
+    <div class="prop-grid prop-grid--2">
+      <div class="reveal reveal-delay-1">
+        <h3 class="prop-col-title">What we know</h3>
+        <ul class="prop-list">
+          <li>
+            <strong>Similarity matters, non-monotonically.</strong> Forgetting peaks at intermediate task similarity, both in
+            teacher&ndash;student networks and in image classifiers.
+            <span class="prop-cites"><a class="prop-cite" href="#ref-lee21">Lee et al. 2021</a> <a class="prop-cite" href="#ref-ramasesh21">Ramasesh et al. 2021</a></span>
+          </li>
+          <li>
+            <strong>Sensitive directions can be protected.</strong> EWC penalizes movement along high-Fisher directions; GEM and
+            OGD remove gradient components that conflict with old tasks.
+            <span class="prop-cites"><a class="prop-cite" href="#ref-kirkpatrick17">Kirkpatrick et al. 2017</a> <a class="prop-cite" href="#ref-lopezpaz17">Lopez-Paz &amp; Ranzato 2017</a> <a class="prop-cite" href="#ref-farajtabar20">Farajtabar et al. 2020</a></span>
+          </li>
+          <li>
+            <strong>LoRA learns less and forgets less</strong> than full fine-tuning of LLMs.
+            <span class="prop-cites"><a class="prop-cite" href="#ref-biderman24">Biderman et al. 2024</a></span>
+          </li>
+          <li>
+            <strong>2026: mechanisms.</strong> Forgetting is traced to negative gradient similarity at the level of individual
+            parameters, and modeled as a low-rank perturbation of mean-field attention dynamics.
+            <span class="prop-cites"><a class="prop-cite" href="#ref-yang26">Yang et al. 2026</a> <a class="prop-cite" href="#ref-koubbi26">Koubbi et al. 2026</a></span>
+          </li>
+        </ul>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <h3 class="prop-col-title">Open challenges</h3>
+        <ul class="prop-list prop-list--open">
+          <li>
+            <strong>Which similarity?</strong> Input overlap, representation similarity, gradient alignment and Fisher overlap can
+            disagree, and no agreed measure predicts forgetting.
+          </li>
+          <li>
+            <strong>Fair comparisons.</strong> Full fine-tuning and LoRA are usually compared at a fixed training budget, so
+            &ldquo;forgets less&rdquo; is confounded with &ldquo;learns less&rdquo;.
+          </li>
+          <li>
+            <strong>Prediction, not post-mortem.</strong> Most analyses explain forgetting after training. A cheap test that says,
+            before fine-tuning, how much will be forgotten and where is still missing.
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="prop-more prop-detail reveal">
+      <p class="ed-eyebrow">In more detail</p>
+      <h4>Closest work</h4>
+      <p>
+        <a class="prop-cite" href="#ref-steele26">Steele 2026</a> proposes that forgetting under LoRA follows the smallest principal
+        angle between task gradient subspaces, with adapter rank mattering mainly when those subspaces are close. Orthogonal-subspace
+        methods such as O-LoRA <a class="prop-cite" href="#ref-wang23">Wang et al. 2023</a> enforce that separation across tasks by
+        construction. <a class="prop-cite" href="#ref-yang26">Yang et al. 2026</a> split parameters into those whose gradients
+        conflict across tasks and those that collaborate, and update only the latter. This project asks a complementary question:
+        whether one quantity, derived from first principles, explains forgetting for <em>both</em> full fine-tuning and LoRA across a
+        controlled range of task similarity, and whether it can be computed before training.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- 03 · Key idea -->
+<section class="prop-slide prop-slide--alt" id="key-idea">
+  <div class="prop-inner">
+    {% include section_header.liquid n=3 label='Key idea' title='Forgetting is a differentiable quantity' %}
+    <p class="prop-lead prop-lead--tight reveal">
+      Fine-tune \(\theta^\star\) (trained on task 1) on task 2 by gradient flow. By the chain rule:
+    </p>
+    <div class="ed-card prop-equation reveal reveal-delay-1">
+      <div class="prop-equation-row">
+        <div>$$\frac{d}{dt}\,\mathcal{L}_1(\theta_t) = -\big\langle \nabla\mathcal{L}_1(\theta_t),\ \nabla\mathcal{L}_2(\theta_t) \big\rangle$$</div>
+        <span class="prop-equation-arrow" aria-hidden="true">\(\Longrightarrow\)</span>
+        <div>$$\underbrace{\mathcal{L}_1(\theta_T) - \mathcal{L}_1(\theta^\star)}_{\text{forgetting } F(T)} = -\int_0^T \big\langle \nabla\mathcal{L}_1,\ \nabla\mathcal{L}_2 \big\rangle \, dt$$</div>
+      </div>
+      <p class="prop-equation-caption">Forgetting is the negative alignment of the two tasks&rsquo; gradients, accumulated along the fine-tuning path.</p>
+    </div>
+    <div class="prop-grid prop-grid--key">
+      <div class="ed-card prop-card reveal reveal-delay-1">
+        <span class="prop-label">Full fine-tuning</span>
+        <div class="prop-math">$$\dot{\mathcal{L}}_1 = -\langle G_1,\ G_2 \rangle$$</div>
+        <p>Every direction of the task-2 gradient can interfere.</p>
+      </div>
+      <div class="ed-card prop-card reveal reveal-delay-2">
+        <span class="prop-label">LoRA &middot; \(W = W_0 + BA\)</span>
+        <div class="prop-math">$$\dot{\mathcal{L}}_1 = -\langle G_1,\ BB^{\top} G_2 + G_2 A^{\top} A \rangle$$</div>
+        <p>Interference passes only through a rank-\(r\) subspace.</p>
+      </div>
+      <div class="ed-card prop-card reveal reveal-delay-3">
+        <span class="prop-label">Second order, near \(\theta^\star\)</span>
+        <div class="prop-math">$$F \approx \tfrac{1}{2}\, \Delta\theta^{\top} H_1\, \Delta\theta$$</div>
+        <p>\(\nabla\mathcal{L}_1(\theta^\star) \approx 0\), so movement along task 1&rsquo;s <strong>sensitive</strong> directions decides, as in EWC.</p>
+      </div>
+    </div>
+    <p class="prop-footnote reveal">\(G_i = \partial\mathcal{L}_i / \partial W\) for an adapted weight matrix \(W\); \(H_1\) is the Hessian of the task-1 loss at \(\theta^\star\).</p>
+
+    <div class="prop-more prop-detail reveal">
+      <p class="ed-eyebrow">In more detail</p>
+      <h4>From the identity to something we can compute</h4>
+      <p>
+        With SGD at step size \(\eta\), one step changes the old loss by
+        \(-\eta\,\langle \nabla\mathcal{L}_1, \nabla\mathcal{L}_2 \rangle + \tfrac{\eta^2}{2}\, \nabla\mathcal{L}_2^{\top} H_1 \nabla\mathcal{L}_2 + O(\eta^3)\),
+        so the identity holds up to a curvature correction. With Adam, the inner product is taken in the optimizer&rsquo;s
+        preconditioned metric, which will be measured as well. The LoRA expression follows from
+        \(\partial\mathcal{L}/\partial B = G A^{\top}\) and \(\partial\mathcal{L}/\partial A = B^{\top} G\); the usual \(\alpha/r\)
+        scaling only rescales time. At LoRA&rsquo;s standard initialization \(B = 0\), so early in fine-tuning only the
+        \(G_2 A^{\top} A\) term is active: alignment is measured inside the row space of a random \(A\).
+      </p>
+      <p>
+        Every term above is an inner product of gradients or a Hessian&ndash;vector product. Reverse- and forward-mode automatic
+        differentiation compute these without ever forming the Hessian, which is what makes the predictors practical for
+        transformer-sized models.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- 04 · Proposed tasks -->
+<section class="prop-slide" id="plan">
+  <div class="prop-inner">
+    {% include section_header.liquid n=4 label='Proposed tasks' title='How I will test it' %}
+    <div class="prop-flow reveal">
+      <div class="ed-card prop-flow-step">
+        <span class="prop-flow-n">01</span>
+        <strong>Pretrained model</strong>
+        <span class="prop-flow-note">small transformer, or a teacher&ndash;student network</span>
+      </div>
+      <div class="prop-flow-arrow" aria-hidden="true"></div>
+      <div class="ed-card prop-flow-step">
+        <span class="prop-flow-n">02</span>
+        <strong>Train on task 1 &rarr; \(\theta^\star\)</strong>
+        <span class="prop-flow-note">the &ldquo;old&rdquo; skill</span>
+      </div>
+      <div class="prop-flow-arrow" aria-hidden="true"></div>
+      <div class="ed-card prop-flow-step prop-flow-step--key">
+        <span class="prop-flow-n">03</span>
+        <strong>Fine-tune on task 2</strong>
+        <span class="prop-flow-note">full FT or LoRA (\(r = 4\)&ndash;\(64\)), similarity varied</span>
+      </div>
+      <div class="prop-flow-arrow" aria-hidden="true"></div>
+      <div class="ed-card prop-flow-step">
+        <span class="prop-flow-n">04</span>
+        <strong>Measure</strong>
+        <span class="prop-flow-note">forgetting on task 1, learning on task 2</span>
+      </div>
+    </div>
+    <div class="prop-flow-predict reveal">
+      <span class="prop-label">Predict</span>
+      <span>At \(\theta^\star\), before step 03, estimate step 04 with autodiff, then compare prediction against measurement.</span>
+    </div>
+
+    <div class="prop-grid prop-grid--3">
+      <div class="ed-card prop-card reveal reveal-delay-1">
+        <span class="prop-label">Similarity ladders</span>
+        <ul class="prop-list prop-list--compact">
+          <li><strong>Synthetic:</strong> teacher&ndash;student networks with tunable feature and readout overlap; exact Hessians, many seeds.</li>
+          <li><strong>Real:</strong> a small pretrained LM; task 2 ranges from the same task in a new domain to unrelated tasks.</li>
+        </ul>
+      </div>
+      <div class="ed-card prop-card reveal reveal-delay-2">
+        <span class="prop-label">Predictors (torch.func)</span>
+        <ul class="prop-list prop-list--compact">
+          <li>gradient cosine between tasks</li>
+          <li>sensitivity \(\tfrac12 \Delta\theta^{\top} H_1 \Delta\theta\) via diagonal Fisher or Hutchinson</li>
+          <li>LoRA projected alignment</li>
+          <li>baseline: representation similarity (CKA)</li>
+        </ul>
+      </div>
+      <div class="ed-card prop-card reveal reveal-delay-3">
+        <span class="prop-label">Measurements</span>
+        <ul class="prop-list prop-list--compact">
+          <li>learning&ndash;forgetting frontier over learning rate, steps and rank</li>
+          <li>rank correlation of predicted vs. measured forgetting</li>
+          <li>per layer: sensitivity vs. accuracy recovered by resetting that layer</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="prop-more prop-detail reveal">
+      <p class="ed-eyebrow">In more detail</p>
+      <h4>Synthetic setting</h4>
+      <p>
+        Following <a class="prop-cite" href="#ref-lee21">Lee et al. 2021</a>, two teacher networks define tasks 1 and 2, and their
+        first-layer weights are mixed so that feature similarity and readout similarity can be set independently. A student network
+        learns task 1, then task 2, either fully or through a low-rank adapter on its hidden layer. The model is small enough to
+        compute exact Hessians, check the integral identity numerically, and run many seeds per similarity level.
+      </p>
+      <h4>Language-model setting (draft, to be fixed in the first two weeks)</h4>
+      <p>
+        Task 1 is a multi-class text classification task (for example AG News topics) on a small pretrained model such as
+        Pythia-160M or GPT-2 small. A <em>natural</em> ladder for task 2 moves from topic data from another source, to a different
+        label space on similar text (sentiment), to an unrelated format (NLI). A <em>controlled</em> ladder keeps task-1 inputs and
+        permutes a fraction \(p\) of the labels (readout shift), or keeps the labels and shifts the input domain (feature shift).
+        LoRA is applied to attention and MLP projections with \(r \in \{4, 16, 64\}\).
+      </p>
+      <h4>Predictors and evaluation</h4>
+      <p>
+        Predictors are computed at \(\theta^\star\), or from a short probe run of a few percent of the fine-tuning steps, using
+        <code>torch.func</code> for per-example gradients, Hessian&ndash;vector products and Hutchinson trace estimates. They are scored
+        against two existing notions of task similarity: representation similarity (CKA,
+        <a class="prop-cite" href="#ref-kornblith19">Kornblith et al. 2019</a>) and Fisher task embeddings (Task2Vec,
+        <a class="prop-cite" href="#ref-achille19">Achille et al. 2019</a>). Because LoRA
+        tends to learn less as well as forget less <a class="prop-cite" href="#ref-biderman24">Biderman et al. 2024</a>, methods are
+        compared on the learning&ndash;forgetting frontier rather than at one setting. Per-layer predictions are checked by resetting
+        one layer at a time to \(\theta^\star\) and measuring how much task-1 accuracy returns, as in
+        <a class="prop-cite" href="#ref-ramasesh21">Ramasesh et al. 2021</a>. Tooling: PyTorch, Hugging Face Transformers and PEFT.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- 05 · Hypotheses and alternatives -->
+<section class="prop-slide prop-slide--alt" id="hypotheses">
+  <div class="prop-inner">
+    {% include section_header.liquid n=5 label='Hypotheses &amp; alternatives' title='What I expect, and what else I will try' %}
+    <div class="prop-grid prop-grid--2">
+      <div class="reveal reveal-delay-1">
+        <h3 class="prop-col-title">Hypotheses</h3>
+        <ol class="prop-hypotheses">
+          <li>
+            <span class="prop-h">H1</span>
+            <p>Forgetting tracks gradient alignment and sensitivity, not input similarity, so it can peak at intermediate similarity.</p>
+          </li>
+          <li>
+            <span class="prop-h">H2</span>
+            <p>LoRA forgets less because it only sees projected alignment; the gap closes when task-2 gradients fall inside task 1&rsquo;s sensitive subspace.</p>
+          </li>
+          <li>
+            <span class="prop-h">H3</span>
+            <p>Sensitivity-weighted predictors rank forgetting across task pairs better than gradient cosine or representation similarity alone.</p>
+          </li>
+        </ol>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <h3 class="prop-col-title">Ideas &amp; alternatives</h3>
+        <ul class="prop-list">
+          <li><strong>Causal test.</strong> Freeze or project out the most sensitive parameters and check that forgetting drops at matched learning.</li>
+          <li><strong>Differentiable tuning.</strong> Learn per-layer learning rates or LoRA placement by differentiating forgetting through a short unrolled run.</li>
+          <li><strong>Other similarity measures.</strong> CKA, Fisher task embeddings (Task2Vec), gradient-subspace angles.</li>
+          <li><strong>Theory.</strong> Closed-form forgetting curves for full FT vs. LoRA in the teacher&ndash;student model.</li>
+          <li><strong>Fallback.</strong> If LM runs are too slow, do the real-data study with ViT/ResNet on split CIFAR.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="prop-more prop-detail reveal">
+      <p class="ed-eyebrow">In more detail</p>
+      <h4>Why a mitigation experiment</h4>
+      <p>
+        Correlation between a predictor and measured forgetting is not yet an explanation. If sensitivity really identifies where
+        forgetting happens, then protecting those parameters, by freezing them, shrinking their step size, or projecting task-2
+        gradients away from them as in OGD <a class="prop-cite" href="#ref-farajtabar20">Farajtabar et al. 2020</a>, should reduce
+        forgetting more than protecting the same number of randomly chosen parameters, at the same task-2 accuracy. This also gives
+        a direct comparison with the conflicting/collaborative split of <a class="prop-cite" href="#ref-yang26">Yang et al. 2026</a>.
+      </p>
+      <h4>Differentiating through fine-tuning</h4>
+      <p>
+        A short fine-tuning run is itself a differentiable program. Unrolling a few hundred steps and differentiating task-1 loss
+        at the end with respect to per-layer learning rates (or a soft mask over where LoRA is applied) gives a hypergradient that
+        directly trades learning against forgetting. This is the most course-specific extension and is planned as a stretch goal.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- 06 · Deliverables -->
+<section class="prop-slide" id="milestones">
+  <div class="prop-inner">
+    {% include section_header.liquid n=6 label='Deliverables' title='What will be done, and when' %}
+    <div class="prop-grid prop-grid--3">
+      <div class="ed-card prop-card prop-milestone reveal reveal-delay-1">
+        <span class="prop-label">Minimum by Nov 17&ndash;19, 2026</span>
+        <h3>Pipeline and synthetic results</h3>
+        <ul class="prop-list prop-list--compact">
+          <li>Fine-tuning harness: full FT and a LoRA rank sweep, logging forgetting and learning</li>
+          <li>Teacher&ndash;student sweep over feature and readout similarity, both methods, &ge; 3 seeds</li>
+          <li>Autodiff predictors; integral identity verified numerically</li>
+          <li>First real task ladder on a small pretrained LM</li>
+        </ul>
+      </div>
+      <div class="ed-card prop-card prop-milestone reveal reveal-delay-2">
+        <span class="prop-label">Minimum by Dec 17, 2026</span>
+        <h3>Real-model study and predictor scorecard</h3>
+        <ul class="prop-list prop-list--compact">
+          <li>&ge; 4 similarity levels &times; {full FT, LoRA \(r = 4, 16, 64\)} &times; 3 seeds, as learning&ndash;forgetting frontiers</li>
+          <li>Predictor scorecard: rank correlation and per-layer attribution</li>
+          <li>One predictor-driven mitigation as a causal test</li>
+          <li>Final report, code, and this page updated</li>
+        </ul>
+      </div>
+      <div class="ed-card prop-card prop-milestone prop-milestone--vision reveal reveal-delay-3">
+        <span class="prop-label">Long-term vision</span>
+        <h3>Forgetting-aware fine-tuning</h3>
+        <ul class="prop-list prop-list--compact">
+          <li>Theory of forgetting under low-rank updates in solvable models</li>
+          <li>Pick layers, rank and step sizes by differentiating predicted forgetting</li>
+          <li>Forgetting estimates before updating a deployed model; long task sequences and instruction-tuned LLMs</li>
+        </ul>
+      </div>
+    </div>
+    <div class="prop-present-only prop-closing">
+      <p>Thank you. Questions?</p>
+      <span>semihakkoc.github.io/cmsc838b</span>
+    </div>
+  </div>
+</section>
+
+<!-- References (reading mode only) -->
+<section class="prop-refs" id="references">
+  <div class="prop-inner">
+    {% include section_header.liquid label='References' title='Reading list' %}
+    <ol class="prop-refs-list">
+      <li id="ref-lee21">
+        S. Lee, S. Goldt, A. Saxe.
+        <a href="https://proceedings.mlr.press/v139/lee21e.html">Continual Learning in the Teacher-Student Setup: Impact of Task Similarity</a>.
+        ICML 2021. <span class="prop-core">Core reading</span>
+      </li>
+      <li id="ref-kirkpatrick17">
+        J. Kirkpatrick et al.
+        <a href="https://www.pnas.org/doi/10.1073/pnas.1611835114">Overcoming Catastrophic Forgetting in Neural Networks</a>.
+        PNAS 2017. <span class="prop-core">Core reading</span>
+      </li>
+      <li id="ref-hu22">
+        E. J. Hu et al. <a href="https://arxiv.org/abs/2106.09685">LoRA: Low-Rank Adaptation of Large Language Models</a>. ICLR 2022
+        (arXiv 2021). <span class="prop-core">Core reading</span>
+      </li>
+      <li id="ref-koubbi26">
+        H. Koubbi, L. Hernandez, M. Boussard.
+        <a href="https://icml.cc/virtual/2026/poster/64536">Understanding Catastrophic Forgetting in LoRA via Mean-Field Attention Dynamics</a>.
+        ICML 2026. <span class="prop-core">Core reading</span>
+      </li>
+      <li id="ref-yang26">
+        M. Yang et al.
+        <a href="https://arxiv.org/abs/2601.21577">Learning the Mechanism of Catastrophic Forgetting: A Perspective from Gradient Similarity</a>.
+        arXiv:2601.21577, 2026. <span class="prop-core">Core reading</span>
+      </li>
+      <li id="ref-ramasesh21">
+        V. Ramasesh, E. Dyer, M. Raghu.
+        <a href="https://arxiv.org/abs/2007.07400">Anatomy of Catastrophic Forgetting: Hidden Representations and Task Semantics</a>.
+        ICLR 2021.
+      </li>
+      <li id="ref-biderman24">
+        D. Biderman et al. <a href="https://arxiv.org/abs/2405.09673">LoRA Learns Less and Forgets Less</a>. TMLR 2024.
+      </li>
+      <li id="ref-lopezpaz17">
+        D. Lopez-Paz, M. Ranzato. <a href="https://arxiv.org/abs/1706.08840">Gradient Episodic Memory for Continual Learning</a>.
+        NeurIPS 2017.
+      </li>
+      <li id="ref-farajtabar20">
+        M. Farajtabar, N. Azizan, A. Mott, A. Li.
+        <a href="https://arxiv.org/abs/1910.07104">Orthogonal Gradient Descent for Continual Learning</a>. AISTATS 2020.
+      </li>
+      <li id="ref-wang23">
+        X. Wang et al.
+        <a href="https://arxiv.org/abs/2310.14152">Orthogonal Subspace Learning for Language Model Continual Learning</a>. Findings of
+        EMNLP 2023.
+      </li>
+      <li id="ref-steele26">
+        B. Steele.
+        <a href="https://arxiv.org/abs/2603.02224">Subspace Geometry Governs Catastrophic Forgetting in Low-Rank Adaptation</a>.
+        arXiv:2603.02224, 2026.
+      </li>
+      <li id="ref-achille19">
+        A. Achille et al. <a href="https://arxiv.org/abs/1902.03545">Task2Vec: Task Embedding for Meta-Learning</a>. ICCV 2019.
+      </li>
+      <li id="ref-kornblith19">
+        S. Kornblith, M. Norouzi, H. Lee, G. Hinton.
+        <a href="https://arxiv.org/abs/1905.00414">Similarity of Neural Network Representations Revisited</a>. ICML 2019.
+      </li>
+    </ol>
+  </div>
+</section>

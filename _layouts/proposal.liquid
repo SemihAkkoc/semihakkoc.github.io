@@ -1,0 +1,26 @@
+---
+layout: default
+---
+{% comment %}
+  Long-form proposal page that doubles as a slide deck.
+  Every <section class="prop-slide"> becomes one slide in presentation mode
+  (P key, the Present button, or a #present-N link); .prop-detail blocks are
+  shown only when reading. Behaviour lives in assets/js/proposal.js.
+{% endcomment %}
+<div class="prop">
+  {{ content }}
+</div>
+
+<div class="prop-hud" id="propHud" data-minutes="{{ page.talk_minutes | default: 5 }}" hidden>
+  <div class="prop-hud-progress"><span id="propProgress"></span></div>
+  <div class="prop-hud-bar" role="toolbar" aria-label="Presentation controls">
+    <button type="button" data-prop="prev" aria-label="Previous slide">&larr;</button>
+    <span class="prop-hud-count" id="propCount" aria-live="polite"></span>
+    <button type="button" data-prop="next" aria-label="Next slide">&rarr;</button>
+    <button type="button" class="prop-hud-timer" id="propTimer" data-prop="timer" title="Restart timer (T)"></button>
+    <button type="button" data-prop="fullscreen" title="Full screen (F)">Full screen</button>
+    <button type="button" data-prop="exit" title="Exit (Esc)">Exit</button>
+  </div>
+</div>
+
+<script defer src="{{ '/assets/js/proposal.js' | relative_url | bust_file_cache }}"></script>
