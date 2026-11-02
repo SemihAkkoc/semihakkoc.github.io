@@ -3,7 +3,8 @@ Description=Study log storage server
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/env python3 %h/.local/lib/study-log/study_server.py
+EnvironmentFile=%h/.config/study-log.env
+ExecStart=/usr/bin/env python3 %h/.local/lib/study-log/study_server.py --allow-user ${STUDY_LOG_USER}
 Restart=always
 RestartSec=5
 NoNewPrivileges=true

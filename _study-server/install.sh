@@ -28,6 +28,11 @@ echo "Installing the server..."
 install -Dm755 "$HERE/study_server.py" "$HOME/.local/lib/study-log/study_server.py"
 install -Dm644 "$HERE/study-log.service" "$HOME/.config/systemd/user/study-log.service"
 
+# Only the Tailscale account that owns this machine may use the server
+owner="$(tailscale status --json | python3 -c 'import json, sys; d = json.load(sys.stdin); print(d["User"][str(d["Self"]["UserID"])]["LoginName"])')"
+printf 'STUDY_LOG_USER=%s\n' "$owner" > "$HOME/.config/study-log.env"
+echo "Allowing only: $owner"
+
 # Linger keeps user services running with nobody logged in, and starts them at boot
 loginctl enable-linger "$USER" 2>/dev/null || sudo loginctl enable-linger "$USER"
 systemctl --user daemon-reload

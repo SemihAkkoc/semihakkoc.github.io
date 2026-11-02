@@ -3,7 +3,8 @@
 
 Holds every day in one JSON file and merges changes from each device per day,
 newest edit wins. It only listens on localhost; `tailscale serve` is what makes
-it reachable, and only from inside the tailnet. Standard library only.
+it reachable, from inside the tailnet only, and tells it who is asking. Only the
+accounts in --allow-user can read or write. Standard library only.
 """
 import argparse
 import datetime
@@ -105,7 +106,7 @@ class Store:
             return dict(self.entries)
 
 
-def make_handler(store, origins):
+def make_handler(store, origins, users):
     class Handler(BaseHTTPRequestHandler):
         protocol_version = "HTTP/1.1"
         timeout = 15
@@ -168,6 +169,11 @@ def make_handler(store, origins):
             if self.path != "/api/sync":
                 self.refuse(404, "not found")
                 return
+            # Set by `tailscale serve` from the caller's tailnet identity. Only local
+            # processes can reach this port directly, so it cannot be forged remotely.
+            if self.headers.get("Tailscale-User-Login") not in users:
+                self.refuse(403, "account not allowed")
+                return
             # JSON forces a CORS preflight, which a form on another site cannot pass
             if self.headers.get("Content-Type", "").split(";")[0].strip() != "application/json":
                 self.refuse(415, "expected application/json")
@@ -200,10 +206,12 @@ def main():
     parser.add_argument("--port", type=int, default=8787)
     parser.add_argument("--data", default=os.path.expanduser("~/.local/share/study-log"))
     parser.add_argument("--allow-origin", action="append", help="site allowed to use this server (repeatable)")
+    parser.add_argument("--allow-user", action="append", required=True, help="Tailscale login allowed to use this server (repeatable)")
     args = parser.parse_args()
 
     store = Store(args.data)
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), make_handler(store, set(args.allow_origin or DEFAULT_ORIGINS)))
+    handler = make_handler(store, set(args.allow_origin or DEFAULT_ORIGINS), set(args.allow_user))
+    server = ThreadingHTTPServer(("127.0.0.1", args.port), handler)
     print("study log: serving %s on 127.0.0.1:%d" % (store.path, args.port), file=sys.stderr, flush=True)
     server.serve_forever()
 
