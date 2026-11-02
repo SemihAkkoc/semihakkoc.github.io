@@ -9,8 +9,9 @@ noindex: true
 
 {% comment %}
   Personal study calendar. Not linked from the navigation and hidden from search
-  engines. Entries stay in this browser's localStorage. Behaviour lives in
-  assets/js/study.js, styles in _sass/_study.scss.
+  engines. Entries are kept in this browser's localStorage and, once connected,
+  synced with the server in _study-server/. Behaviour lives in assets/js/study.js,
+  styles in _sass/_study.scss.
 {% endcomment %}
 <div class="study" id="study">
   <header class="study-head">
@@ -109,12 +110,32 @@ noindex: true
   </div>
 
   <footer class="study-foot">
-    <p id="studyStatus" role="status">Saved only in this browser. Export a backup now and then.</p>
+    <div class="study-foot-status">
+      <p class="study-sync" id="studySync"></p>
+      <p id="studyStatus" role="status"></p>
+    </div>
     <div class="study-foot-actions">
+      <button type="button" class="study-btn" id="studyServerToggle">Connect server</button>
       <button type="button" class="study-btn" id="studyExport">Export backup</button>
       <button type="button" class="study-btn" id="studyImport">Import backup</button>
       <input type="file" id="studyImportFile" accept="application/json,.json" hidden>
     </div>
+    <form class="study-server-form" id="studyServerForm" hidden>
+      <label class="study-label" for="studyServer">Server address</label>
+      <div class="study-server-row">
+        <input
+          type="text"
+          id="studyServer"
+          inputmode="url"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="https://your-machine.your-tailnet.ts.net:8443"
+        >
+        <button type="submit" class="study-btn">Connect</button>
+        <button type="button" class="study-btn" id="studyServerCancel">Cancel</button>
+      </div>
+    </form>
   </footer>
 </div>
 

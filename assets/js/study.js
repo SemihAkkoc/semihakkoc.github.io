@@ -1,11 +1,17 @@
 // Personal study calendar (_pages/study.html). Each day holds the minutes studied
-// and an optional color. Entries live in this browser's localStorage, with JSON
-// export and import as the backup.
+// and an optional color. Entries are kept in this browser's localStorage, so the
+// page works offline, and synced with the server in _study-server/ once connected.
+// Devices merge per day: the newest edit wins, and deleted days are sent as empty.
 (function () {
   const root = document.getElementById("study");
   if (!root) return;
 
   const STORAGE_KEY = "study-log-v1";
+  const PENDING_KEY = "study-log-pending-v1";
+  const SERVER_KEY = "study-log-server";
+  const SYNC_DELAY_MS = 600;
+  const SYNC_INTERVAL_MS = 60 * 1000;
+  const SYNC_TIMEOUT_MS = 8000;
   const MAX_MINUTES = 24 * 60;
   const STEP_MINUTES = 30;
   const DEFAULT_HINT = "Try 2.5, 2:30, 2h 30m or 90m";
@@ -20,8 +26,19 @@
   const clearButton = byId("studyClear");
   const importFile = byId("studyImportFile");
   const swatches = Array.from(root.querySelectorAll(".study-swatch"));
+  const syncLine = byId("studySync");
+  const serverForm = byId("studyServerForm");
+  const serverInput = byId("studyServer");
+  const serverToggle = byId("studyServerToggle");
 
   let entries = load();
+  let pending = loadPending(); // days changed here that the server has not accepted yet
+  let serverUrl = loadServer();
+  let syncState = "idle";
+  let lastSynced = null;
+  let syncing = false;
+  let syncAgain = false;
+  let syncTimer = null;
   let today = dateKey(new Date());
   let selected = today;
   let viewYear = new Date().getFullYear();
@@ -83,16 +100,34 @@
 
   /* Storage */
 
-  // Keeps the valid days from untrusted data (localStorage or an imported file)
-  function cleanEntries(raw) {
+  // Keeps the valid days from untrusted data (localStorage, a file or the server).
+  // Empty days only mean something in sync data, where they mark a deletion.
+  function cleanEntries(raw, keepEmpty) {
     const clean = {};
     Object.entries(raw && typeof raw === "object" ? raw : {}).forEach(([key, entry]) => {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(key) || dateKey(parseKey(key)) !== key || !entry) return;
       const minutes = Number.isInteger(entry.minutes) && entry.minutes > 0 && entry.minutes <= MAX_MINUTES ? entry.minutes : 0;
       const color = Object.hasOwn(COLOR_CLASSES, entry.color) ? entry.color : null;
-      if (minutes || color) clean[key] = { minutes, color };
+      const updated = Number.isInteger(entry.updated) && entry.updated > 0 ? entry.updated : 0;
+      if (minutes || color || keepEmpty) clean[key] = { minutes, color, updated };
     });
     return clean;
+  }
+
+  function loadPending() {
+    try {
+      return cleanEntries(JSON.parse(localStorage.getItem(PENDING_KEY)), true);
+    } catch (error) {
+      return {};
+    }
+  }
+
+  function loadServer() {
+    try {
+      return localStorage.getItem(SERVER_KEY);
+    } catch (error) {
+      return null;
+    }
   }
 
   function load() {
@@ -117,6 +152,9 @@
   function save() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, entries }));
+      localStorage.setItem(PENDING_KEY, JSON.stringify(pending));
+      if (serverUrl) localStorage.setItem(SERVER_KEY, serverUrl);
+      else localStorage.removeItem(SERVER_KEY);
     } catch (error) {
       warn("Could not save. Export a backup before leaving this page.");
       return;
@@ -141,12 +179,150 @@
     return entries[key] || { minutes: 0, color: null };
   }
 
-  function setEntry(key, change) {
-    const next = Object.assign({}, entryFor(key), change);
+  // Records an edit made on this device, stamped so other devices can order it
+  function writeDay(key, day) {
+    const next = Object.assign({}, day, { updated: Date.now() });
     if (next.minutes || next.color) entries[key] = next;
     else delete entries[key];
+    if (serverUrl) pending[key] = next;
+  }
+
+  function setEntry(key, change) {
+    writeDay(key, Object.assign({}, entryFor(key), change));
     save();
     paintDay(key);
+    scheduleSync();
+  }
+
+  /* Sync */
+
+  async function postSync(url, changes) {
+    const response = await fetch(url + "/api/sync", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ changes }),
+      signal: AbortSignal.timeout(SYNC_TIMEOUT_MS),
+    });
+    if (!response.ok) throw new Error("Server replied " + response.status);
+    return cleanEntries((await response.json()).entries, true);
+  }
+
+  function applyRemote(remote) {
+    const merged = {};
+    Object.entries(remote).forEach(([key, day]) => {
+      if (!pending[key] && (day.minutes || day.color)) merged[key] = day;
+    });
+    Object.entries(entries).forEach(([key, day]) => {
+      if (pending[key]) {
+        merged[key] = day;
+      } else if (!remote[key]) {
+        // The server has never seen this day (say its file was restored): send it back
+        merged[key] = day;
+        pending[key] = day;
+      }
+    });
+    entries = merged;
+  }
+
+  async function sync() {
+    if (!serverUrl) return;
+    if (syncing) {
+      syncAgain = true;
+      return;
+    }
+    syncing = true;
+    const url = serverUrl;
+    const sent = Object.assign({}, pending);
+
+    try {
+      const remote = await postSync(url, sent);
+      if (url === serverUrl) {
+        // Keep anything edited while this request was on its way
+        Object.keys(sent).forEach((key) => {
+          if (pending[key] && pending[key].updated === sent[key].updated) delete pending[key];
+        });
+        applyRemote(remote);
+        save();
+        syncState = "synced";
+        lastSynced = new Date();
+        paintAll();
+      }
+    } catch (error) {
+      syncState = "offline";
+    }
+
+    syncing = false;
+    paintSync();
+    if (syncAgain || (syncState === "synced" && Object.keys(pending).length)) {
+      syncAgain = false;
+      scheduleSync();
+    }
+  }
+
+  function scheduleSync() {
+    if (!serverUrl) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(sync, SYNC_DELAY_MS);
+  }
+
+  function paintSync() {
+    const waiting = Object.keys(pending).length;
+    const days = waiting + (waiting === 1 ? " day" : " days");
+    const host = serverUrl ? new URL(serverUrl).hostname.split(".")[0] : "";
+
+    syncLine.classList.toggle("is-synced", Boolean(serverUrl) && syncState === "synced");
+    syncLine.classList.toggle("is-offline", Boolean(serverUrl) && syncState === "offline");
+    serverToggle.textContent = serverUrl ? "Disconnect" : "Connect server";
+
+    if (!serverUrl) {
+      syncLine.textContent = "Saved only in this browser. Connect your server to keep it on all your devices.";
+    } else if (syncState === "offline") {
+      syncLine.textContent = "Can't reach " + host + ". Saved here" + (waiting ? ", " + days + " will sync" : " and will sync") + " when it's back.";
+    } else if (syncState === "synced") {
+      const time = lastSynced.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+      syncLine.textContent = "Synced with " + host + " at " + time + (waiting ? ", " + days + " waiting" : "") + ".";
+    } else {
+      syncLine.textContent = "Connecting to " + host + "...";
+    }
+  }
+
+  // Accepts a bare hostname; returns null for anything that is not HTTPS
+  function parseServer(text) {
+    const value = text.trim();
+    try {
+      const url = new URL(/^[a-z]+:\/\//i.test(value) ? value : "https://" + value);
+      return url.protocol === "https:" ? url.origin : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async function connect(url) {
+    say("Connecting...");
+    try {
+      await postSync(url, {});
+    } catch (error) {
+      warn("Could not reach that address. Check it, and that Tailscale is on for this device.");
+      return;
+    }
+    serverUrl = url;
+    pending = Object.assign({}, entries); // this device's days may be new to the server
+    syncState = "idle";
+    save();
+    serverForm.hidden = true;
+    say("");
+    paintSync();
+    sync();
+  }
+
+  function disconnect() {
+    clearTimeout(syncTimer);
+    serverUrl = null;
+    pending = {};
+    syncState = "idle";
+    save();
+    paintSync();
+    say("Disconnected. This browser keeps its copy; the server keeps its data.");
   }
 
   /* Rendering */
@@ -277,7 +453,8 @@
     paintWeeks();
     paintStats();
     paintEditor();
-    syncTimeInput();
+    // A sync can land mid-keystroke: never rewrite what is being typed
+    if (document.activeElement !== timeInput) syncTimeInput();
   }
 
   function syncTimeInput() {
@@ -350,16 +527,17 @@
       return;
     }
 
-    const differs = (key) => entries[key] && JSON.stringify(entries[key]) !== JSON.stringify(imported[key]);
+    const differs = (key) => entries[key] && (entries[key].minutes !== imported[key].minutes || entries[key].color !== imported[key].color);
     const conflicts = keys.filter(differs).length;
     if (conflicts && !window.confirm("Replace " + conflicts + " existing " + (conflicts === 1 ? "day" : "days") + " with the backup's values?")) {
       say("Import cancelled.");
       return;
     }
 
-    entries = Object.assign(entries, imported);
+    keys.forEach((key) => writeDay(key, imported[key]));
     save();
     paintAll();
+    scheduleSync();
     say("Imported " + keys.length + (keys.length === 1 ? " day." : " days."));
   }
 
@@ -375,10 +553,28 @@
   swatches.forEach((swatch) => swatch.addEventListener("click", () => setColor(swatch.dataset.color)));
 
   clearButton.addEventListener("click", () => {
-    delete entries[selected];
-    save();
-    paintDay(selected);
+    setEntry(selected, { minutes: 0, color: null });
     syncTimeInput();
+  });
+
+  serverToggle.addEventListener("click", () => {
+    if (serverUrl) {
+      disconnect();
+    } else {
+      serverForm.hidden = !serverForm.hidden;
+      if (!serverForm.hidden) serverInput.focus();
+    }
+  });
+
+  byId("studyServerCancel").addEventListener("click", () => {
+    serverForm.hidden = true;
+  });
+
+  serverForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const url = parseServer(serverInput.value);
+    if (url) connect(url);
+    else warn("Enter an https:// address, like the one the install script printed.");
   });
 
   grid.addEventListener("click", (event) => {
@@ -436,17 +632,30 @@
 
   // Another tab changed the data: pick it up rather than overwrite it later
   window.addEventListener("storage", (event) => {
-    if (event.key !== STORAGE_KEY) return;
+    if (![STORAGE_KEY, PENDING_KEY, SERVER_KEY].includes(event.key)) return;
     entries = load();
+    pending = loadPending();
+    serverUrl = loadServer();
     paintAll();
+    paintSync();
   });
 
-  // The page was left open past midnight
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden || dateKey(new Date()) === today) return;
-    today = dateKey(new Date());
-    paintAll();
+    if (document.hidden) return;
+    // The page was left open past midnight
+    if (dateKey(new Date()) !== today) {
+      today = dateKey(new Date());
+      paintAll();
+    }
+    sync();
   });
+
+  window.addEventListener("online", sync);
+  setInterval(() => {
+    if (!document.hidden) sync();
+  }, SYNC_INTERVAL_MS);
 
   buildGrid();
+  paintSync();
+  sync();
 })();

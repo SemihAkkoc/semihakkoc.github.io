@@ -494,10 +494,67 @@ html[data-theme="dark"] .is-today > .study-day-number {
   }
 }
 
+.study-foot-status {
+  flex: 1 1 18rem;
+  min-width: 0;
+
+  p:empty {
+    display: none;
+  }
+
+  p + p {
+    margin-top: 0.3rem;
+  }
+}
+
+.study-foot p.study-sync {
+  &.is-synced::before,
+  &.is-offline::before {
+    content: "";
+    display: inline-block;
+    width: 0.55rem;
+    height: 0.55rem;
+    margin-right: 0.45rem;
+    border-radius: 50%;
+    background: var(--study-green-dot);
+  }
+
+  &.is-offline::before {
+    background: var(--study-yellow-dot);
+  }
+}
+
 .study-foot-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
+}
+
+.study-server-form {
+  flex: 1 1 100%;
+}
+
+.study-server-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+
+  input {
+    flex: 1 1 16rem;
+    min-width: 0;
+    min-height: 2.5rem;
+    padding: 0 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.8rem;
+
+    &::placeholder {
+      color: var(--text-light);
+    }
+  }
 }
 
 /* Below this width the editor becomes a bar pinned to the bottom of the screen */
