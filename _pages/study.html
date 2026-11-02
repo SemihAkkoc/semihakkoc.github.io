@@ -1,0 +1,121 @@
+---
+layout: default
+permalink: /study/
+title: Study Log
+description: A personal calendar for tracking daily study time.
+sitemap: false
+noindex: true
+---
+
+{% comment %}
+  Personal study calendar. Not linked from the navigation and hidden from search
+  engines. Entries stay in this browser's localStorage. Behaviour lives in
+  assets/js/study.js, styles in _sass/_study.scss.
+{% endcomment %}
+<div class="study" id="study">
+  <header class="study-head">
+    <div>
+      <p class="study-eyebrow">Study log</p>
+      <h1 class="study-month" aria-live="polite"><span id="studyMonthName"></span> <em id="studyYear"></em></h1>
+    </div>
+    <div class="study-nav">
+      <button type="button" class="study-btn study-btn--icon" id="studyPrev" aria-label="Previous month">&larr;</button>
+      <button type="button" class="study-btn" id="studyToday">Today</button>
+      <button type="button" class="study-btn study-btn--icon" id="studyNext" aria-label="Next month">&rarr;</button>
+    </div>
+  </header>
+
+  <dl class="study-stats">
+    <div>
+      <dt>Month total</dt>
+      <dd id="statTotal"></dd>
+    </div>
+    <div>
+      <dt>Days studied</dt>
+      <dd id="statDays"></dd>
+    </div>
+    <div>
+      <dt>Avg. per study day</dt>
+      <dd id="statAverage"></dd>
+    </div>
+    <div>
+      <dt>Current streak</dt>
+      <dd id="statStreak"></dd>
+    </div>
+  </dl>
+
+  <div class="study-layout">
+    <section class="study-calendar" aria-label="Calendar">
+      <div class="study-weekdays" aria-hidden="true">
+        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+        <span class="study-week-label">Week</span>
+      </div>
+      <div class="study-grid" id="studyGrid"></div>
+      <ul class="study-legend" aria-label="Colored days this month">
+        <li><i class="study-dot is-green"></i><span id="countGreen"></span> green</li>
+        <li><i class="study-dot is-yellow"></i><span id="countYellow"></span> yellow</li>
+        <li><i class="study-dot is-red"></i><span id="countRed"></span> red</li>
+      </ul>
+    </section>
+
+    <aside class="study-editor" aria-label="Edit selected day">
+      <div class="study-editor-date">
+        <p class="study-eyebrow" id="editorWeekday"></p>
+        <h2 id="editorDate"></h2>
+      </div>
+
+      <div class="study-editor-time">
+        <label class="study-label" for="studyTime">Time studied</label>
+        <div class="study-stepper">
+          <button type="button" class="study-btn study-btn--icon" id="studyMinus" aria-label="Subtract 30 minutes">&minus;</button>
+          <input
+            type="text"
+            id="studyTime"
+            inputmode="text"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="0h"
+            aria-describedby="studyTimeHint"
+          >
+          <button type="button" class="study-btn study-btn--icon" id="studyPlus" aria-label="Add 30 minutes">+</button>
+        </div>
+        <p class="study-hint" id="studyTimeHint"></p>
+      </div>
+
+      <div class="study-editor-color">
+        <span class="study-label" id="studyColorLabel">Color</span>
+        <div class="study-swatches" role="group" aria-labelledby="studyColorLabel">
+          <button type="button" class="study-swatch" data-color="green" aria-pressed="false">
+            <i class="study-dot is-green"></i><span>Green</span>
+          </button>
+          <button type="button" class="study-swatch" data-color="yellow" aria-pressed="false">
+            <i class="study-dot is-yellow"></i><span>Yellow</span>
+          </button>
+          <button type="button" class="study-swatch" data-color="red" aria-pressed="false">
+            <i class="study-dot is-red"></i><span>Red</span>
+          </button>
+        </div>
+      </div>
+
+      <button type="button" class="study-clear" id="studyClear">Clear day</button>
+
+      <p class="study-keys">
+        <span><kbd>&larr;</kbd> <kbd>&rarr;</kbd> <kbd>&uarr;</kbd> <kbd>&darr;</kbd> move</span>
+        <span><kbd>0</kbd>&ndash;<kbd>9</kbd> type time</span>
+        <span><kbd>G</kbd> <kbd>Y</kbd> <kbd>R</kbd> color</span>
+        <span><kbd>T</kbd> today</span>
+      </p>
+    </aside>
+  </div>
+
+  <footer class="study-foot">
+    <p id="studyStatus" role="status">Saved only in this browser. Export a backup now and then.</p>
+    <div class="study-foot-actions">
+      <button type="button" class="study-btn" id="studyExport">Export backup</button>
+      <button type="button" class="study-btn" id="studyImport">Import backup</button>
+      <input type="file" id="studyImportFile" accept="application/json,.json" hidden>
+    </div>
+  </footer>
+</div>
+
+<script defer src="{{ '/assets/js/study.js' | relative_url | bust_file_cache }}"></script>
