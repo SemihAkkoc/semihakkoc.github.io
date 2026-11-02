@@ -302,7 +302,7 @@
     try {
       await postSync(url, {});
     } catch (error) {
-      warn("Could not reach that address. Check it, and that Tailscale is on for this device.");
+      warn("Could not reach that address. Check it, that Tailscale is on, and that this browser is allowed to access your local network.");
       return;
     }
     serverUrl = url;
