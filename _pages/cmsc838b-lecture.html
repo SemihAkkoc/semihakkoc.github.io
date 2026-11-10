@@ -5,7 +5,7 @@ title: Catastrophic Forgetting · CMSC 838B Lecture
 description: >
   Student lecture for CMSC 838B (Fall 2026): what catastrophic forgetting is, why sequential fine-tuning causes it,
   how task similarity shapes it, and how EWC, gradient projection, replay and LoRA limit it.
-talk_minutes: 18 # length of the in-class lecture; drives the timer in presentation mode
+talk_minutes: 19 # length of the in-class lecture; drives the timer in presentation mode
 ---
 
 {% comment %}
@@ -356,8 +356,83 @@ talk_minutes: 18 # length of the in-class lecture; drives the timer in presentat
   </div>
 </section>
 
+<!-- 02 · Step size and the landscape -->
+<section class="prop-slide" id="step-size">
+  <div class="prop-inner">
+    {% include section_header.liquid n=2 label='Why it happens' title='Step size shapes how costly it is to move' %}
+    <div class="lec-split">
+      <div class="reveal">
+        <p class="lec-text">Real optimizers take finite steps. One step of size \(\eta\) on task 2 changes task 1's loss by</p>
+        <div class="prop-math">$$\Delta\mathcal{L}_1 = -\eta\,\langle g_1, g_2\rangle + \tfrac{\eta^2}{2}\,g_2^{\top}H_1\,g_2 + O(\eta^3)$$</div>
+        <ul class="prop-list">
+          <li><strong>Relative to the gradient, bigger steps let curvature win.</strong> The second term grows like \(\eta^2\), so even orthogonal gradients forget.</li>
+          <li><strong>The step size also shapes the landscape.</strong> Full-batch gradient descent raises the sharpness until \(\lambda_{\max}\approx 2/\eta\): the edge of stability.</li>
+          <li><strong>So step size enters twice.</strong> Larger task-1 steps leave a flatter \(\theta^\star\); larger task-2 steps move further from it.</li>
+          <li><strong>Landscape views:</strong> continual and multitask solutions are often joined by a straight low-loss path, and LLMs sit in basins that fine-tuning can stay inside.</li>
+        </ul>
+        <span class="lec-cite">Cohen et al. 2021 &middot; Mirzadeh et al. 2021 &middot; Chen et al. 2025</span>
+      </div>
+      <figure class="lec-fig ed-card prop-card reveal reveal-delay-1">
+        <svg class="lec-svg" viewBox="0 0 450 285" role="img" aria-labelledby="fig-step-cap">
+          <line x1="50" y1="226" x2="370" y2="226" class="ax" />
+          <line x1="50" y1="34" x2="50" y2="226" class="ax" />
+          <line x1="50" y1="66" x2="370" y2="66" class="grid" />
+          <text x="42" y="230" text-anchor="end" class="t-mono">0</text>
+          <text x="42" y="70" text-anchor="end" class="t-mono">1.0</text>
+          <text x="18" y="130" text-anchor="middle" transform="rotate(-90 18 130)" class="t-small">task-1 loss</text>
+          <line x1="210" y1="226" x2="210" y2="231" class="ax" />
+          <text x="210" y="244" text-anchor="middle" class="t-mono">&#952;*</text>
+          <text x="103.3" y="244" text-anchor="middle" class="t-mono">0.3 away</text>
+          <text x="210" y="272" text-anchor="middle" class="t-small">distance moved from &#952;* by fine-tuning</text>
+          <polyline class="line c1" points="87.3,35.6 89.1,41.0 90.9,46.4 92.7,51.8 94.4,57.0 96.2,62.2 98.0,67.2 99.8,72.2 101.6,77.2 103.3,82.0 105.1,86.8 106.9,91.4 108.7,96.0 110.4,100.6 112.2,105.0 114.0,109.4 115.8,113.6 117.6,117.8 119.3,122.0 121.1,126.0 122.9,130.0 124.7,133.8 126.4,137.6 128.2,141.4 130.0,145.0 131.8,148.6 133.6,152.0 135.3,155.4 137.1,158.8 138.9,162.0 140.7,165.2 142.4,168.2 144.2,171.2 146.0,174.2 147.8,177.0 149.6,179.8 151.3,182.4 153.1,185.0 154.9,187.6 156.7,190.0 158.4,192.4 160.2,194.6 162.0,196.8 163.8,199.0 165.6,201.0 167.3,203.0 169.1,204.8 170.9,206.6 172.7,208.4 174.4,210.0 176.2,211.6 178.0,213.0 179.8,214.4 181.6,215.8 183.3,217.0 185.1,218.2 186.9,219.2 188.7,220.2 190.4,221.2 192.2,222.0 194.0,222.8 195.8,223.4 197.6,224.0 199.3,224.6 201.1,225.0 202.9,225.4 204.7,225.6 206.4,225.8 208.2,226.0 210.0,226.0 211.8,226.0 213.6,225.8 215.3,225.6 217.1,225.4 218.9,225.0 220.7,224.6 222.4,224.0 224.2,223.4 226.0,222.8 227.8,222.0 229.6,221.2 231.3,220.2 233.1,219.2 234.9,218.2 236.7,217.0 238.4,215.8 240.2,214.4 242.0,213.0 243.8,211.6 245.6,210.0 247.3,208.4 249.1,206.6 250.9,204.8 252.7,203.0 254.4,201.0 256.2,199.0 258.0,196.8 259.8,194.6 261.6,192.4 263.3,190.0 265.1,187.6 266.9,185.0 268.7,182.4 270.4,179.8 272.2,177.0 274.0,174.2 275.8,171.2 277.6,168.2 279.3,165.2 281.1,162.0 282.9,158.8 284.7,155.4 286.4,152.0 288.2,148.6 290.0,145.0 291.8,141.4 293.6,137.6 295.3,133.8 297.1,130.0 298.9,126.0 300.7,122.0 302.4,117.8 304.2,113.6 306.0,109.4 307.8,105.0 309.6,100.6 311.3,96.0 313.1,91.4 314.9,86.8 316.7,82.0 318.4,77.2 320.2,72.2 322.0,67.2 323.8,62.2 325.6,57.0 327.3,51.8 329.1,46.4 330.9,41.0 332.7,35.6" />
+          <polyline class="line c1 dash" points="50.0,145.0 51.8,146.8 53.6,148.6 55.3,150.3 57.1,152.0 58.9,153.8 60.7,155.4 62.4,157.1 64.2,158.8 66.0,160.4 67.8,162.0 69.6,163.6 71.3,165.2 73.1,166.7 74.9,168.2 76.7,169.8 78.4,171.2 80.2,172.7 82.0,174.2 83.8,175.6 85.6,177.0 87.3,178.4 89.1,179.8 90.9,181.1 92.7,182.4 94.4,183.8 96.2,185.0 98.0,186.3 99.8,187.6 101.6,188.8 103.3,190.0 105.1,191.2 106.9,192.4 108.7,193.5 110.4,194.6 112.2,195.8 114.0,196.8 115.8,197.9 117.6,199.0 119.3,200.0 121.1,201.0 122.9,202.0 124.7,203.0 126.4,203.9 128.2,204.8 130.0,205.8 131.8,206.6 133.6,207.5 135.3,208.4 137.1,209.2 138.9,210.0 140.7,210.8 142.4,211.6 144.2,212.3 146.0,213.0 147.8,213.8 149.6,214.4 151.3,215.1 153.1,215.8 154.9,216.4 156.7,217.0 158.4,217.6 160.2,218.2 162.0,218.7 163.8,219.2 165.6,219.8 167.3,220.2 169.1,220.7 170.9,221.2 172.7,221.6 174.4,222.0 176.2,222.4 178.0,222.8 179.8,223.1 181.6,223.4 183.3,223.8 185.1,224.0 186.9,224.3 188.7,224.6 190.4,224.8 192.2,225.0 194.0,225.2 195.8,225.4 197.6,225.5 199.3,225.6 201.1,225.8 202.9,225.8 204.7,225.9 206.4,226.0 208.2,226.0 210.0,226.0 211.8,226.0 213.6,226.0 215.3,225.9 217.1,225.8 218.9,225.8 220.7,225.6 222.4,225.5 224.2,225.4 226.0,225.2 227.8,225.0 229.6,224.8 231.3,224.6 233.1,224.3 234.9,224.0 236.7,223.8 238.4,223.4 240.2,223.1 242.0,222.8 243.8,222.4 245.6,222.0 247.3,221.6 249.1,221.2 250.9,220.7 252.7,220.2 254.4,219.8 256.2,219.2 258.0,218.7 259.8,218.2 261.6,217.6 263.3,217.0 265.1,216.4 266.9,215.8 268.7,215.1 270.4,214.4 272.2,213.8 274.0,213.0 275.8,212.3 277.6,211.6 279.3,210.8 281.1,210.0 282.9,209.2 284.7,208.4 286.4,207.5 288.2,206.6 290.0,205.8 291.8,204.8 293.6,203.9 295.3,203.0 297.1,202.0 298.9,201.0 300.7,200.0 302.4,199.0 304.2,197.9 306.0,196.8 307.8,195.8 309.6,194.6 311.3,193.5 313.1,192.4 314.9,191.2 316.7,190.0 318.4,188.8 320.2,187.6 322.0,186.3 323.8,185.0 325.6,183.8 327.3,182.4 329.1,181.1 330.9,179.8 332.7,178.4 334.4,177.0 336.2,175.6 338.0,174.2 339.8,172.7 341.6,171.2 343.3,169.8 345.1,168.2 346.9,166.7 348.7,165.2 350.4,163.6 352.2,162.0 354.0,160.4 355.8,158.8 357.6,157.1 359.3,155.4 361.1,153.8 362.9,152.0 364.7,150.3 366.4,148.6 368.2,146.8 370.0,145.0" />
+          <line x1="103.3" y1="82" x2="103.3" y2="226" class="line thin cm dot" />
+          <circle cx="103.3" cy="82" r="5.5" class="ff ring" />
+          <circle cx="103.3" cy="190" r="5.5" class="ff ring" />
+          <text x="113" y="80" class="t-mono t-strong halo">0.90</text>
+          <text x="95" y="208" text-anchor="end" class="t-mono t-strong halo">0.23</text>
+          <text x="340" y="44" class="t-small t-strong">&#951;&#8321; = 0.1</text>
+          <text x="340" y="58" class="t-small">&#955;<tspan font-size="8.5" dy="3">max</tspan><tspan dy="-3"> &#8776; 20</tspan></text>
+          <text x="376" y="141" class="t-small t-strong">&#951;&#8321; = 0.4</text>
+          <text x="376" y="155" class="t-small">&#955;<tspan font-size="8.5" dy="3">max</tspan><tspan dy="-3"> &#8776; 5</tspan></text>
+        </svg>
+        <figcaption id="fig-step-cap">Quadratic model with the edge-of-stability sharpness \(\lambda_{\max} = 2/\eta_1\). The same move costs four times more at the minimum trained with a four-times-smaller step.</figcaption>
+      </figure>
+    </div>
+
+    <div class="prop-more prop-detail reveal">
+      <p class="ed-eyebrow">In more detail</p>
+      <h4>Where the \(\eta^2\) term comes from</h4>
+      <p>
+        One step on task 2 moves \(\Delta\theta = -\eta g_2\). Expanding \(\mathcal{L}_1\) to second order around the current point gives the
+        formula on the slide. The ratio \(\eta\,g_2^\top H_1 g_2 / (2\,|g_1^\top g_2|)\) says which term decides: below 1 the gradient
+        alignment does, above 1 the curvature does. Projection methods such as OGD zero only the first term, so at large steps they still
+        forget. With Adam, \(\eta\) is replaced by the optimizer's per-parameter effective step.
+      </p>
+      <h4>The edge of stability</h4>
+      <p>
+        On a quadratic with curvature \(\lambda\), gradient descent with step \(\eta\) is stable only if \(\eta &lt; 2/\lambda\). Cohen et al.
+        (2021) found that full-batch training of real networks keeps sharpening until \(\lambda_{\max}\) reaches about \(2/\eta\), then hovers
+        there; SGD settles somewhat lower, and adaptive optimizers show the same effect for their preconditioned sharpness. Kalra et al.
+        (2023) describe these sharpness dynamics as universal across architectures. For forgetting, this means the step size used to train
+        task 1 sets the sharpness of \(\theta^\star\), and with it the bound \(\tfrac12\lambda_{\max}\|\Delta\theta\|^2\). Rofin et al. (2026)
+        find the same link in LLMs: pretraining that ends with a decayed learning rate leaves a sharper model that forgets more during
+        fine-tuning.
+      </p>
+      <h4>Looking at the landscape directly</h4>
+      <p>
+        Two-dimensional slices of the loss through chosen points, with filter-normalized directions (Li et al. 2018), show the geometry
+        behind these numbers. Mirzadeh et al. (2021) found that, from a shared initialization, continual and multitask solutions are
+        connected by a straight low-loss path, and built a continual-learning method (MC-SGD) on it. For LLMs, Chen et al. (2025) find
+        basin-shaped landscapes: inside a basin the model's abilities barely change, while the worst-case direction is sharp, so a small
+        move along it can destroy them.
+      </p>
+    </div>
+  </div>
+</section>
+
 <!-- 03 · Similarity in the toy model -->
-<section class="prop-slide" id="similarity">
+<section class="prop-slide prop-slide--alt" id="similarity">
   <div class="prop-inner">
     {% include section_header.liquid n=3 label='Task similarity' title='Forgetting peaks at intermediate similarity' %}
     <div class="lec-split">
@@ -415,7 +490,7 @@ talk_minutes: 18 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- 03 · Lee, Goldt, Saxe -->
-<section class="prop-slide prop-slide--alt" id="teacher-student">
+<section class="prop-slide" id="teacher-student">
   <div class="prop-inner">
     {% include section_header.liquid n=3 label='Task similarity' title='Teacher&ndash;student theory: similarity is not one number' %}
     <div class="lec-split lec-split--wide-right">
@@ -476,7 +551,7 @@ talk_minutes: 18 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- 04 · Families -->
-<section class="prop-slide" id="families">
+<section class="prop-slide prop-slide--alt" id="families">
   <div class="prop-inner">
     {% include section_header.liquid n=4 label='Preventing it' title='Four families of fixes, each constrains the update' %}
     <div class="prop-grid prop-grid--4">
@@ -506,7 +581,7 @@ talk_minutes: 18 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- 04 · EWC -->
-<section class="prop-slide prop-slide--alt" id="ewc">
+<section class="prop-slide" id="ewc">
   <div class="prop-inner">
     {% include section_header.liquid n=4 label='Preventing it' title='Elastic Weight Consolidation (EWC)' %}
     <div class="lec-split">
@@ -570,7 +645,7 @@ talk_minutes: 18 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- 04 · Projection and replay -->
-<section class="prop-slide" id="projection">
+<section class="prop-slide prop-slide--alt" id="projection">
   <div class="prop-inner">
     {% include section_header.liquid n=4 label='Preventing it' title='Projection and replay, in the toy model' %}
     <div class="lec-split lec-split--wide-right lec-split--top">
@@ -592,7 +667,7 @@ talk_minutes: 18 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- 05 · LoRA -->
-<section class="prop-slide prop-slide--alt" id="lora">
+<section class="prop-slide" id="lora">
   <div class="prop-inner">
     {% include section_header.liquid n=5 label='Fine-tuning today' title='LoRA: train a low-rank update, freeze the rest' %}
     <div class="lec-split">
@@ -646,7 +721,7 @@ talk_minutes: 18 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- 05 · Biderman -->
-<section class="prop-slide" id="lora-forgets-less">
+<section class="prop-slide prop-slide--alt" id="lora-forgets-less">
   <div class="prop-inner">
     {% include section_header.liquid n=5 label='Fine-tuning today' title='LoRA learns less, and forgets less' %}
     <div class="lec-split">
@@ -691,7 +766,7 @@ talk_minutes: 18 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- 05 · 2026 mechanisms -->
-<section class="prop-slide prop-slide--alt" id="mechanisms-2026">
+<section class="prop-slide" id="mechanisms-2026">
   <div class="prop-inner">
     {% include section_header.liquid n=5 label='Fine-tuning today' title='2026: two views of the mechanism' %}
     <div class="prop-grid prop-grid--2">
@@ -725,7 +800,7 @@ talk_minutes: 18 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- 06 · Open questions -->
-<section class="prop-slide" id="open-questions">
+<section class="prop-slide prop-slide--alt" id="open-questions">
   <div class="prop-inner">
     {% include section_header.liquid n=6 label='Open questions' title='What is still open, and where my project fits' %}
     <div class="prop-grid prop-grid--2">
@@ -745,6 +820,7 @@ talk_minutes: 18 # length of the in-class lecture; drives the timer in presentat
           <li>At \(\theta^\star\), compute gradient alignment, sensitivity (diagonal Fisher, Hutchinson) and LoRA's projected alignment with <code>torch.func</code>.</li>
           <li>Fine-tune along similarity ladders: teacher&ndash;student networks and a small pretrained LM, full fine-tuning vs. LoRA \(r \in \{4, 16, 64\}\).</li>
           <li>Score each predictor against measured forgetting, on the learning&ndash;forgetting frontier.</li>
+          <li>Make the predictors step-size aware, and check them against slices of the loss landscape.</li>
         </ul>
         <span class="lec-cite">semihakkoc.github.io/cmsc838b</span>
       </div>
@@ -753,12 +829,12 @@ talk_minutes: 18 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- Takeaways -->
-<section class="prop-slide prop-slide--alt" id="takeaways">
+<section class="prop-slide" id="takeaways">
   <div class="prop-inner">
     {% include section_header.liquid label='Takeaways' title='Five things to remember' %}
     <ol class="lec-takeaways reveal">
       <li><strong>Forgetting comes from the optimization path, not from missing capacity.</strong> A joint solution usually exists; fine-tuning does not look for it.</li>
-      <li><strong>By the chain rule, forgetting is accumulated gradient conflict</strong>, \(-\int\langle\nabla\mathcal{L}_1,\nabla\mathcal{L}_2\rangle\,dt\). Near the old optimum it is curvature-weighted movement, \(\tfrac12\Delta\theta^\top H_1\Delta\theta\).</li>
+      <li><strong>By the chain rule, forgetting is accumulated gradient conflict</strong>, \(-\int\langle\nabla\mathcal{L}_1,\nabla\mathcal{L}_2\rangle\,dt\). Near the old optimum it is curvature-weighted movement, \(\tfrac12\Delta\theta^\top H_1\Delta\theta\), and the step size sets both the curvature and the movement.</li>
       <li><strong>Similarity is non-monotonic.</strong> Identical and unrelated tasks are safe; related but different tasks forget most.</li>
       <li><strong>Every fix constrains the update.</strong> Penalize sensitive directions (EWC), remove conflicting components (GEM, OGD), replay old data, or restrict the update (LoRA). Each trades learning for remembering.</li>
       <li><strong>All of these quantities are derivatives:</strong> gradient inner products and Hessian&ndash;vector products, which autodiff computes at the scale of real models.</li>
@@ -767,7 +843,7 @@ talk_minutes: 18 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- Discussion -->
-<section class="prop-slide" id="discussion">
+<section class="prop-slide prop-slide--alt" id="discussion">
   <div class="prop-inner">
     {% include section_header.liquid label='Discussion' title='Questions for the class' %}
     <ol class="lec-questions reveal">
@@ -788,7 +864,7 @@ talk_minutes: 18 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- Reading list -->
-<section class="prop-slide prop-slide--alt" id="reading-list">
+<section class="prop-slide" id="reading-list">
   <div class="prop-inner">
     {% include section_header.liquid label='Reading list' title='Where to start' %}
     <div class="prop-grid prop-grid--2">
@@ -809,7 +885,8 @@ talk_minutes: 18 # length of the in-class lecture; drives the timer in presentat
           <li><strong>Biderman et al.</strong> LoRA learns less and forgets less. <em>TMLR 2024</em></li>
           <li><strong>Lopez-Paz &amp; Ranzato</strong> 2017 (GEM); <strong>Farajtabar et al.</strong> 2020 (OGD). <em>projection</em></li>
           <li><strong>Ramasesh et al.</strong> 2021; <strong>Evron et al.</strong> 2022. <em>similarity</em></li>
-          <li><strong>Mirzadeh et al.</strong> 2020. <em>curvature and training regimes</em></li>
+          <li><strong>Mirzadeh et al.</strong> 2020, 2021. <em>curvature, training regimes, mode connectivity</em></li>
+          <li><strong>Cohen et al.</strong> 2021; <strong>Chen et al.</strong> 2025. <em>step size and loss landscapes</em></li>
           <li><strong>van de Ven &amp; Tolias</strong> 2019. <em>three continual-learning scenarios</em></li>
         </ul>
       </div>
@@ -869,6 +946,12 @@ talk_minutes: 18 # length of the in-class lecture; drives the timer in presentat
       <li>D. Biderman et al. <a href="https://arxiv.org/abs/2405.09673">LoRA Learns Less and Forgets Less</a>. TMLR 2024.</li>
       <li>L. Ouyang et al. <a href="https://arxiv.org/abs/2203.02155">Training Language Models to Follow Instructions with Human Feedback</a>. NeurIPS 2022.</li>
       <li>X. Qi et al. <a href="https://arxiv.org/abs/2310.03693">Fine-tuning Aligned Language Models Compromises Safety, Even When Users Do Not Intend To!</a> ICLR 2024.</li>
+      <li>J. Cohen, S. Kaur, Y. Li, J. Z. Kolter, A. Talwalkar. <a href="https://arxiv.org/abs/2103.00065">Gradient Descent on Neural Networks Typically Occurs at the Edge of Stability</a>. ICLR 2021.</li>
+      <li>D. S. Kalra, T. He, M. Barkeshli. <a href="https://arxiv.org/abs/2311.02076">Universal Sharpness Dynamics in Neural Network Training: Fixed Point Analysis, Edge of Stability, and Route to Chaos</a>. arXiv 2023.</li>
+      <li>M. Rofin, A. Varre, N. Flammarion. <a href="https://arxiv.org/abs/2604.13627">(How) Learning Rates Regulate Catastrophic Overtraining</a>. COLM 2026.</li>
+      <li>H. Li, Z. Xu, G. Taylor, C. Studer, T. Goldstein. <a href="https://arxiv.org/abs/1712.09913">Visualizing the Loss Landscape of Neural Nets</a>. NeurIPS 2018.</li>
+      <li>S. I. Mirzadeh, M. Farajtabar, D. Gorur, R. Pascanu, H. Ghasemzadeh. <a href="https://arxiv.org/abs/2010.04495">Linear Mode Connectivity in Multitask and Continual Learning</a>. ICLR 2021.</li>
+      <li>H. Chen et al. <a href="https://arxiv.org/abs/2505.17646">Unveiling the Basin-Like Loss Landscape in Large Language Models</a>. arXiv 2025.</li>
     </ol>
   </div>
 </section>

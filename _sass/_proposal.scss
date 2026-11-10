@@ -208,6 +208,11 @@ h3.prop-col-title {
   color: var(--text-muted);
 }
 
+// A second column heading further down the same column
+h3.prop-col-title--later {
+  margin-top: 2.25rem;
+}
+
 ul.prop-list {
   margin: 0;
   padding: 0;

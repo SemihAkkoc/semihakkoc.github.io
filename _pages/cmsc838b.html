@@ -247,7 +247,7 @@ talk_minutes: 5 # length of the in-class talk; drives the timer in presentation 
       <div class="ed-card prop-card reveal reveal-delay-2">
         <span class="prop-label">Predictors (torch.func)</span>
         <ul class="prop-list prop-list--compact">
-          <li>gradient cosine between tasks</li>
+          <li>gradient cosine between tasks, plus the \(\eta^2\) curvature term</li>
           <li>sensitivity \(\tfrac12 \Delta\theta^{\top} H_1 \Delta\theta\) via diagonal Fisher or Hutchinson</li>
           <li>LoRA projected alignment</li>
           <li>baseline: representation similarity (CKA)</li>
@@ -317,6 +317,17 @@ talk_minutes: 5 # length of the in-class talk; drives the timer in presentation 
             <p>Sensitivity-weighted predictors rank forgetting across task pairs better than gradient cosine or representation similarity alone.</p>
           </li>
         </ol>
+        <h3 class="prop-col-title prop-col-title--later">Added after the proposal discussion</h3>
+        <ul class="prop-list">
+          <li>
+            <strong>Step size, related to the gradient.</strong> Find where the curvature term \(\tfrac{\eta^2}{2}g_2^{\top}H_1 g_2\) outgrows
+            gradient alignment, and how the task-1 step size sets the sharpness of \(\theta^\star\).
+          </li>
+          <li>
+            <strong>Loss-landscape views.</strong> Slices through \(\theta^\star\), the fine-tuned and the multitask solutions, compared
+            across settings.
+          </li>
+        </ul>
       </div>
       <div class="reveal reveal-delay-2">
         <h3 class="prop-col-title">Ideas &amp; alternatives</h3>
@@ -339,6 +350,32 @@ talk_minutes: 5 # length of the in-class talk; drives the timer in presentation 
         gradients away from them as in OGD <a class="prop-cite" href="#ref-farajtabar20">Farajtabar et al. 2020</a>, should reduce
         forgetting more than protecting the same number of randomly chosen parameters, at the same task-2 accuracy. This also gives
         a direct comparison with the conflicting/collaborative split of <a class="prop-cite" href="#ref-yang26">Yang et al. 2026</a>.
+      </p>
+      <h4>Step size and the loss landscape (added after the proposal discussion)</h4>
+      <p>
+        The integral identity holds for gradient flow, where steps are infinitesimal. One SGD step of size \(\eta\) changes the old loss by
+        \(-\eta\,\langle g_1, g_2\rangle + \tfrac{\eta^2}{2}\, g_2^{\top} H_1 g_2 + O(\eta^3)\). The first term grows like \(\eta\) and
+        the second like \(\eta^2\), so the ratio \(\eta\, g_2^{\top} H_1 g_2 / (2\,|g_1^{\top} g_2|)\) says when curvature, not
+        gradient alignment, decides forgetting. Above that point even exactly orthogonal gradients forget. Predictors will therefore be
+        evaluated at the step sizes actually used, with Adam's per-parameter effective step in place of \(\eta\).
+      </p>
+      <p>
+        The step size also shapes the landscape that later fine-tuning has to cross. Full-batch gradient descent sharpens until
+        \(\lambda_{\max}\approx 2/\eta\), the edge of stability <a class="prop-cite" href="#ref-cohen21">Cohen et al. 2021</a>, and these
+        sharpness dynamics recur across architectures <a class="prop-cite" href="#ref-kalra23">Kalra et al. 2023</a>. The step size used
+        for task 1 thus sets the sharpness of \(\theta^\star\), and with it the bound
+        \(\tfrac12\lambda_{\max}\|\Delta\theta\|^2\); in LLMs, pretraining that ends with learning-rate decay leaves a sharper model that
+        forgets more during fine-tuning <a class="prop-cite" href="#ref-rofin26">Rofin et al. 2026</a>. The two step sizes will be swept
+        separately, with \(\lambda_{\max}\) at \(\theta^\star\) estimated by power iteration on Hessian&ndash;vector products.
+      </p>
+      <p>
+        For landscape views, task-1 loss will be plotted on the plane through \(\theta^\star\), the fine-tuned model and the multitask
+        solution, using filter-normalized directions <a class="prop-cite" href="#ref-li18">Li et al. 2018</a>. Two questions follow from
+        earlier work: whether continual and multitask solutions are joined by a straight low-loss path, as on standard continual-learning
+        benchmarks <a class="prop-cite" href="#ref-mirzadeh21">Mirzadeh et al. 2021</a>, and whether fine-tuning a pretrained LM stays
+        inside the basin where its abilities are preserved <a class="prop-cite" href="#ref-chen25">Chen et al. 2025</a>. Repeating the
+        slices across task pairs, model sizes and full fine-tuning vs. LoRA tests whether this picture is universal or specific to a
+        setting.
       </p>
       <h4>Differentiating through fine-tuning</h4>
       <p>
@@ -453,6 +490,31 @@ talk_minutes: 5 # length of the in-class talk; drives the timer in presentation 
       <li id="ref-kornblith19">
         S. Kornblith, M. Norouzi, H. Lee, G. Hinton.
         <a href="https://arxiv.org/abs/1905.00414">Similarity of Neural Network Representations Revisited</a>. ICML 2019.
+      </li>
+      <li id="ref-cohen21">
+        J. Cohen, S. Kaur, Y. Li, J. Z. Kolter, A. Talwalkar.
+        <a href="https://arxiv.org/abs/2103.00065">Gradient Descent on Neural Networks Typically Occurs at the Edge of Stability</a>. ICLR 2021.
+      </li>
+      <li id="ref-kalra23">
+        D. S. Kalra, T. He, M. Barkeshli.
+        <a href="https://arxiv.org/abs/2311.02076">Universal Sharpness Dynamics in Neural Network Training: Fixed Point Analysis, Edge of Stability, and Route to Chaos</a>.
+        arXiv:2311.02076, 2023.
+      </li>
+      <li id="ref-rofin26">
+        M. Rofin, A. Varre, N. Flammarion.
+        <a href="https://arxiv.org/abs/2604.13627">(How) Learning Rates Regulate Catastrophic Overtraining</a>. COLM 2026.
+      </li>
+      <li id="ref-li18">
+        H. Li, Z. Xu, G. Taylor, C. Studer, T. Goldstein.
+        <a href="https://arxiv.org/abs/1712.09913">Visualizing the Loss Landscape of Neural Nets</a>. NeurIPS 2018.
+      </li>
+      <li id="ref-mirzadeh21">
+        S. I. Mirzadeh, M. Farajtabar, D. Gorur, R. Pascanu, H. Ghasemzadeh.
+        <a href="https://arxiv.org/abs/2010.04495">Linear Mode Connectivity in Multitask and Continual Learning</a>. ICLR 2021.
+      </li>
+      <li id="ref-chen25">
+        H. Chen, Y. Dong, Z. Wei, Y. Huang, Y. Zhang, H. Su, J. Zhu.
+        <a href="https://arxiv.org/abs/2505.17646">Unveiling the Basin-Like Loss Landscape in Large Language Models</a>. arXiv:2505.17646, 2025.
       </li>
     </ol>
   </div>
