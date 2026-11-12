@@ -8,7 +8,8 @@
 //
 // Every .fd-demo element becomes one widget:
 //   data-angle="60"            initial angle φ between the tasks, in degrees
-//   data-methods="ft,ewc,ogd"  optimizers to offer (default: ft only)
+//   data-methods="ft,ewc,agem,ogd"  optimizers to offer (default: ft only)
+//   data-start="ogd"           which of them is selected first (default: the first listed)
 //   data-chart="false"         hide the forgetting-vs-similarity chart
 //   data-note="false"          hide the one-line explanation under the readouts
 (function () {
@@ -21,7 +22,8 @@
   const METHODS = {
     ft: { label: "Fine-tune", note: "Plain gradient descent on task 2 moves only along u₂ and stops at the nearest task-2 solution." },
     ewc: { label: "EWC", note: "Task 2 plus a Fisher penalty that anchors θ along task 1's sensitive direction. Here the penalty is exact, so EWC slides to the joint solution." },
-    ogd: { label: "Projection", note: "OGD removes the part of the task-2 gradient along task 1's gradient direction. It walks straight to the joint solution, but slowly when the tasks are similar." },
+    agem: { label: "A-GEM", note: "A-GEM projects only when a step conflicts with the gradient on stored task-1 data. That gradient is zero at θ*, so the first step goes through and its damage stays." },
+    ogd: { label: "OGD", note: "OGD always removes task 1's stored output gradient, which is not zero at θ*, so task 1 is protected from the first step; it learns slowly when tasks are similar." },
   };
 
   // Plane: θ ∈ [-0.3, 2.1] × [-0.4, 1.4], drawn at 400 × 300
@@ -47,7 +49,8 @@
       let gx = c * r2;
       const gy = s * r2;
       if (method === "ewc") gx += EWC_LAMBDA * (x - 1);
-      else if (method === "ogd") gx = 0; // project out u1 = (1, 0)
+      else if (method === "ogd") gx = 0; // project out u1 = (1, 0), the gradient of task 1's output
+      else if (method === "agem" && gx * (x - 1) < 0) gx = 0; // reference ∇L1 = (x − 1, 0); project only on conflict
       x -= LR * gx;
       y -= LR * gy;
       path.push([x, y]);
@@ -110,7 +113,8 @@
     const methods = (root.dataset.methods || "ft").split(",").filter((m) => METHODS[m]);
     const showChart = root.dataset.chart !== "false";
     const showNote = root.dataset.note !== "false";
-    const state = { phi: ((Number(root.dataset.angle) || 60) * Math.PI) / 180, method: methods[0] };
+    const start = methods.includes(root.dataset.start) ? root.dataset.start : methods[0];
+    const state = { phi: ((Number(root.dataset.angle) || 60) * Math.PI) / 180, method: start };
 
     root.innerHTML = "";
 
@@ -327,7 +331,7 @@
 
       readouts.querySelector('[data-k="f"]').textContent = fmt(res.forgetting);
       readouts.querySelector('[data-k="l"]').textContent = Math.round(res.learned * 100) + "%";
-      note.textContent = METHODS[state.method].note + (methods.length > 1 ? " Every method gets the same " + STEPS + " steps." : "");
+      note.textContent = METHODS[state.method].note + (methods.length > 1 ? " " + STEPS + " steps each." : "");
 
       if (chart) {
         chart.curve.setAttribute("points", pts(curve(state.method), cx, cy));

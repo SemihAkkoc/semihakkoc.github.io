@@ -188,6 +188,117 @@ table.lec-matrix {
   }
 }
 
+/* Comparison and decision tables (families, choosing a fix) */
+.lec-table-wrap {
+  overflow-x: auto;
+}
+
+table.lec-compare {
+  width: 100%;
+  margin: 0 0 0.75rem;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  line-height: 1.45;
+
+  th,
+  td {
+    padding: 0.6rem 0.8rem;
+    border: 0;
+    border-bottom: 1px solid var(--border-light);
+    text-align: left;
+    vertical-align: top;
+    color: var(--text-muted);
+  }
+
+  thead th {
+    padding-top: 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.64rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--text-light);
+  }
+
+  tbody th {
+    width: 9rem;
+    font-weight: 400;
+
+    strong {
+      display: block;
+      font-family: var(--serif);
+      font-size: 1.3rem;
+      font-weight: 400;
+      line-height: 1.1;
+      color: var(--text);
+    }
+
+    span {
+      display: block;
+      margin-top: 0.25rem;
+      font-family: var(--mono);
+      font-size: 0.64rem;
+      letter-spacing: 0.03em;
+      color: var(--accent-warm);
+    }
+  }
+
+  td strong {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  td.lec-try {
+    width: 22%;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  tbody tr:last-child th,
+  tbody tr:last-child td {
+    border-bottom: 0;
+  }
+}
+
+table.lec-guide td:first-child {
+  width: 40%;
+}
+
+/* Definitions of named methods */
+dl.lec-defs {
+  margin: 0 0 1rem;
+
+  dt {
+    margin-top: 0.8rem;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: var(--text);
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    span {
+      margin-left: 0.45rem;
+      font-family: var(--mono);
+      font-size: 0.64rem;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent-warm);
+    }
+  }
+
+  dd {
+    margin: 0.15rem 0 0;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+}
+
 /* Takeaways */
 ol.lec-takeaways {
   margin: 0;
@@ -719,6 +830,10 @@ p.fd-note {
  * ------------------------------------------------------------------------- */
 
 html.prop-presenting {
+  table.lec-compare {
+    font-size: 0.76rem;
+  }
+
   .lec-fig svg.lec-svg {
     max-height: 50vh;
   }

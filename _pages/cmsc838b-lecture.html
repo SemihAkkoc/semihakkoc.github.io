@@ -553,30 +553,69 @@ talk_minutes: 19 # length of the in-class lecture; drives the timer in presentat
 <!-- 04 · Families -->
 <section class="prop-slide prop-slide--alt" id="families">
   <div class="prop-inner">
-    {% include section_header.liquid n=4 label='Preventing it' title='Four families of fixes, each constrains the update' %}
-    <div class="prop-grid prop-grid--4">
-      <div class="ed-card prop-card lec-family reveal reveal-delay-1">
-        <span class="prop-label">Protect &middot; regularize</span>
-        <p>Penalize moving weights that mattered for old tasks (<strong>EWC</strong>, SI, MAS), or keep old outputs fixed by distillation (LwF).</p>
-        <p class="lec-acts"><span class="lec-tag">Acts on</span> the second-order term \(\tfrac12\Delta\theta^\top H_1\Delta\theta\)</p>
-      </div>
-      <div class="ed-card prop-card lec-family reveal reveal-delay-2">
-        <span class="prop-label">Project &middot; constrain the gradient</span>
-        <p>Remove the part of the update that conflicts with old tasks (<strong>GEM</strong>, A-GEM, <strong>OGD</strong>, GPM).</p>
-        <p class="lec-acts"><span class="lec-tag">Acts on</span> the sign of \(\langle\nabla\mathcal{L}_1, \nabla\mathcal{L}_2\rangle\)</p>
-      </div>
-      <div class="ed-card prop-card lec-family reveal reveal-delay-1">
-        <span class="prop-label">Replay &middot; rehearse</span>
-        <p>Mix stored or generated old examples into training. For LLMs, mix pretraining data into fine-tuning.</p>
-        <p class="lec-acts"><span class="lec-tag">Acts on</span> the objective: adds \(\nabla\mathcal{L}_1\) back, approximating joint training</p>
-      </div>
-      <div class="ed-card prop-card lec-family reveal reveal-delay-2">
-        <span class="prop-label">Isolate &middot; architecture</span>
-        <p>Give new tasks their own parameters (progressive networks, PackNet, adapters, <strong>LoRA</strong>).</p>
-        <p class="lec-acts"><span class="lec-tag">Acts on</span> which directions can move at all</p>
-      </div>
+    {% include section_header.liquid n=4 label='Preventing it' title='Four families of fixes, compared' %}
+    <div class="lec-table-wrap reveal">
+      <table class="lec-compare">
+        <thead>
+          <tr><th>Family</th><th>Protects task 1 by</th><th>Works well when</th><th>Struggles when</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row"><strong>Protect</strong><span>EWC, SI</span></th>
+            <td>penalizing moves of the weights task 1 is sensitive to</td>
+            <td>there are few tasks, and no old data may be kept</td>
+            <td>many tasks (penalties pile up); new classes arrive without task labels; long fine-tunes</td>
+          </tr>
+          <tr>
+            <th scope="row"><strong>Project</strong><span>GEM, A-GEM, OGD</span></th>
+            <td>removing the conflicting part of each step</td>
+            <td>gradients conflict, and a small memory is allowed</td>
+            <td>tasks are very similar, so little is left to learn in; many tasks</td>
+          </tr>
+          <tr>
+            <th scope="row"><strong>Replay</strong><span>buffer, data mixing</span></th>
+            <td>training on some old data alongside the new</td>
+            <td>any old data can be kept; it works in every setting</td>
+            <td>data can't be stored (privacy, licensing); the buffer is too small</td>
+          </tr>
+          <tr>
+            <th scope="row"><strong>Isolate</strong><span>adapters, LoRA</span></th>
+            <td>limiting which weights can change</td>
+            <td>the task is known at test time</td>
+            <td>one model must serve every task without labels; it learns less</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+    <p class="prop-footnote reveal">
+      EWC: Elastic Weight Consolidation (next slide) &middot; SI: Synaptic Intelligence &middot; GEM: Gradient Episodic Memory &middot;
+      A-GEM: Averaged GEM &middot; OGD: Orthogonal Gradient Descent (slide 14) &middot; LoRA: Low-Rank Adaptation (slide 16)
+    </p>
     <p class="lec-callout lec-callout--plain reveal">Every family buys remembering with some learning: the update is smaller, slower or restricted.</p>
+
+    <div class="prop-more prop-detail reveal">
+      <p class="ed-eyebrow">In more detail</p>
+      <h4>Which term of the forgetting identity each family acts on</h4>
+      <p>
+        Protect methods shrink the second-order term \(\tfrac12\Delta\theta^\top H_1\Delta\theta\) by making moves along sensitive
+        directions expensive. Project methods control the sign of the first-order integrand \(\langle\nabla\mathcal{L}_1,\nabla\mathcal{L}_2\rangle\).
+        Replay changes the objective itself: adding old data puts \(\nabla\mathcal{L}_1\) back into every step, which approximates joint
+        training. Isolate methods restrict which directions can move at all. Other members of each family include MAS (Memory Aware
+        Synapses) and LwF (Learning without Forgetting, which distills the old model's outputs) for protect, GPM (Gradient Projection
+        Memory) for project, generative replay for replay, and progressive networks and PackNet for isolate.
+      </p>
+      <h4>What each family costs</h4>
+      <p>
+        Protect: one importance value per weight, per task. Project: stored examples or gradient directions, and extra backward passes
+        each step. Replay: storage for the buffer and extra compute every step. Isolate: parameters that grow with the number of tasks.
+      </p>
+      <p>
+        The "works well" and "struggles" columns summarize the methods' own assumptions and the comparisons cited in this lecture:
+        regularization methods break down when new classes arrive without task labels while replay does not (van de Ven &amp; Tolias
+        2019), even tiny replay buffers are strong (Chaudhry et al. 2019), and LoRA learns less as well as forgetting less (Biderman et
+        al. 2024).
+      </p>
+    </div>
   </div>
 </section>
 
@@ -644,30 +683,95 @@ talk_minutes: 19 # length of the in-class lecture; drives the timer in presentat
   </div>
 </section>
 
-<!-- 04 · Projection and replay -->
+<!-- 04 · Projection: GEM, A-GEM, OGD -->
 <section class="prop-slide prop-slide--alt" id="projection">
   <div class="prop-inner">
-    {% include section_header.liquid n=4 label='Preventing it' title='Projection and replay, in the toy model' %}
-    <div class="lec-split lec-split--wide-right lec-split--top">
+    {% include section_header.liquid n=4 label='Preventing it' title='Projection: GEM, A-GEM and OGD' %}
+    <div class="lec-split lec-split--top">
       <div class="reveal">
-        <ul class="prop-list">
-          <li>
-            <strong>GEM</strong> stores a few examples per old task and requires \(\langle g, g_k\rangle \ge 0\); if violated, it projects
-            \(g\) onto the nearest allowed gradient. <strong>A-GEM</strong>: one averaged constraint.
-          </li>
-          <li><strong>OGD</strong> steps only orthogonally to stored gradient directions of old outputs.</li>
-          <li>In identity terms: GEM keeps the integrand \(\ge 0\); OGD makes it zero to first order.</li>
-          <li><strong>Replay</strong> mixes a small buffer of old data into training. InstructGPT mixed in pretraining data to cut the alignment tax.</li>
-        </ul>
+        <p class="lec-text">Each keeps something from task 1, then edits every task-2 gradient \(g\) before the step.</p>
+        <dl class="lec-defs">
+          <dt>GEM <span>Gradient Episodic Memory</span></dt>
+          <dd>Keeps a few examples per old task. If \(g\) conflicts with an old task's gradient \(g_k\), meaning \(\langle g, g_k\rangle &lt; 0\), it uses the closest gradient that conflicts with none.</dd>
+          <dt>A-GEM <span>Averaged GEM</span></dt>
+          <dd>One check against the average gradient on the memory, \(g_{\text{ref}}\). On conflict it removes the conflicting part: \(g - \frac{\langle g, g_{\text{ref}}\rangle}{\|g_{\text{ref}}\|^2}\,g_{\text{ref}}\).</dd>
+          <dt>OGD <span>Orthogonal Gradient Descent</span></dt>
+          <dd>Stores gradients of the model's outputs on old examples, and always removes those directions from \(g\).</dd>
+        </dl>
+        <p class="lec-text">In the identity's terms: GEM and A-GEM keep the integrand \(\ge 0\); OGD makes it zero to first order.</p>
         <span class="lec-cite">Lopez-Paz &amp; Ranzato 2017 &middot; Chaudhry et al. 2019 &middot; Farajtabar et al. 2020</span>
       </div>
-      <div class="fd-demo reveal reveal-delay-1" data-angle="35" data-methods="ft,ewc,ogd" data-chart="false"></div>
+      <div class="fd-demo reveal reveal-delay-1" data-angle="35" data-methods="ft,agem,ogd" data-start="ogd" data-chart="false"></div>
+    </div>
+
+    <div class="prop-more prop-detail reveal">
+      <p class="ed-eyebrow">In more detail</p>
+      <h4>What the toy model shows</h4>
+      <p>
+        The demo runs the three rules on the two-parameter model for 40 steps each. Plain fine-tuning falls off task 1's line. OGD's
+        stored direction is the gradient of task 1's output, \(u_1\), so it slides along task 1's line straight to the joint solution.
+        A-GEM's reference is the gradient of task 1's <em>loss</em> on its memory, which is zero at \(\theta^\star\) because task 1 is at
+        its optimum. Its first step therefore goes through unchanged, and the forgetting from that step stays; after that it behaves like
+        OGD. With one old task, GEM's quadratic program has a single constraint and gives the same step as A-GEM.
+      </p>
+      <h4>GEM's quadratic program</h4>
+      <p>
+        GEM solves \(\min_{\tilde g}\tfrac12\|g-\tilde g\|^2\) subject to \(\langle\tilde g, g_k\rangle\ge 0\) for every old task \(k\), in its
+        dual, which has one variable per old task. A-GEM replaces the constraints with a single one on the averaged memory gradient,
+        which has the closed-form projection on the slide.
+      </p>
     </div>
   </div>
 </section>
 
+<!-- 04 · Choosing a fix -->
+<section class="prop-slide" id="choosing">
+  <div class="prop-inner">
+    {% include section_header.liquid n=4 label='Preventing it' title='Which fix should you use?' %}
+    <div class="lec-table-wrap reveal">
+      <table class="lec-compare lec-guide">
+        <thead>
+          <tr><th>If you see</th><th>Try</th><th>Why</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Some old data can be kept: a small buffer, or general pretraining data for an LLM</td>
+            <td class="lec-try">Replay</td>
+            <td>puts \(\nabla\mathcal{L}_1\) back into every step, close to joint training</td>
+          </tr>
+          <tr>
+            <td>The task is known at test time</td>
+            <td class="lec-try">Isolate: an adapter or LoRA per task</td>
+            <td>the old task's weights never change</td>
+          </tr>
+          <tr>
+            <td><strong>Indicator 1, at \(\theta^\star\).</strong> The gradients conflict: \(\cos(\nabla\mathcal{L}_1,\nabla\mathcal{L}_2) &lt; 0\) over a few batches</td>
+            <td class="lec-try">Project: OGD, or A&#8209;GEM with a memory</td>
+            <td>removes the first-order term of forgetting</td>
+          </tr>
+          <tr>
+            <td><strong>Indicator 2, at \(\theta^\star\).</strong> Task 1 is sharp: large \(\lambda_{\max}\), or Fisher mass on few weights</td>
+            <td class="lec-try">Protect: EWC, plus a smaller step</td>
+            <td>shrinks the second-order term \(\tfrac12\Delta\theta^\top H_1\Delta\theta\)</td>
+          </tr>
+          <tr>
+            <td>Gradients roughly orthogonal or aligned, and a flat \(\theta^\star\)</td>
+            <td class="lec-try">Plain fine-tuning, a modest step</td>
+            <td>both terms are small; keep checking old-task scores</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="prop-footnote reveal">
+      Check from the top and combine rows that apply. These are rules of thumb from the methods' assumptions and the results in this
+      lecture, not guarantees. Intermediate task similarity is the riskiest case (slide 10). For LLMs, a common combination is LoRA plus a
+      little replay of general data.
+    </p>
+  </div>
+</section>
+
 <!-- 05 · LoRA -->
-<section class="prop-slide" id="lora">
+<section class="prop-slide prop-slide--alt" id="lora">
   <div class="prop-inner">
     {% include section_header.liquid n=5 label='Fine-tuning today' title='LoRA: train a low-rank update, freeze the rest' %}
     <div class="lec-split">
@@ -721,7 +825,7 @@ talk_minutes: 19 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- 05 · Biderman -->
-<section class="prop-slide prop-slide--alt" id="lora-forgets-less">
+<section class="prop-slide" id="lora-forgets-less">
   <div class="prop-inner">
     {% include section_header.liquid n=5 label='Fine-tuning today' title='LoRA learns less, and forgets less' %}
     <div class="lec-split">
@@ -766,7 +870,7 @@ talk_minutes: 19 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- 05 · 2026 mechanisms -->
-<section class="prop-slide" id="mechanisms-2026">
+<section class="prop-slide prop-slide--alt" id="mechanisms-2026">
   <div class="prop-inner">
     {% include section_header.liquid n=5 label='Fine-tuning today' title='2026: two views of the mechanism' %}
     <div class="prop-grid prop-grid--2">
@@ -800,7 +904,7 @@ talk_minutes: 19 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- 06 · Open questions -->
-<section class="prop-slide prop-slide--alt" id="open-questions">
+<section class="prop-slide" id="open-questions">
   <div class="prop-inner">
     {% include section_header.liquid n=6 label='Open questions' title='What is still open, and where my project fits' %}
     <div class="prop-grid prop-grid--2">
@@ -829,7 +933,7 @@ talk_minutes: 19 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- Takeaways -->
-<section class="prop-slide" id="takeaways">
+<section class="prop-slide prop-slide--alt" id="takeaways">
   <div class="prop-inner">
     {% include section_header.liquid label='Takeaways' title='Five things to remember' %}
     <ol class="lec-takeaways reveal">
@@ -843,7 +947,7 @@ talk_minutes: 19 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- Discussion -->
-<section class="prop-slide prop-slide--alt" id="discussion">
+<section class="prop-slide" id="discussion">
   <div class="prop-inner">
     {% include section_header.liquid label='Discussion' title='Questions for the class' %}
     <ol class="lec-questions reveal">
@@ -864,7 +968,7 @@ talk_minutes: 19 # length of the in-class lecture; drives the timer in presentat
 </section>
 
 <!-- Reading list -->
-<section class="prop-slide" id="reading-list">
+<section class="prop-slide prop-slide--alt" id="reading-list">
   <div class="prop-inner">
     {% include section_header.liquid label='Reading list' title='Where to start' %}
     <div class="prop-grid prop-grid--2">
