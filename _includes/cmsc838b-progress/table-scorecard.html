@@ -1,0 +1,11 @@
+<div class="lec-table-wrap"><table class="lec-compare pr-table">
+<thead><tr><th>Predictor (computed at &theta;*, before fine-tuning)</th><th class="pr-num">Full FT</th><th class="pr-num">LoRA r=4</th><th class="pr-num">LoRA r=2</th><th class="pr-num">LoRA r=1</th><th class="pr-num">All runs</th></tr></thead>
+<tbody>
+<tr><th>Task similarity: correlation of the two targets</th><td class="pr-num pr-best">+0.91</td><td class="pr-num pr-best">+0.46</td><td class="pr-num pr-best">+0.41</td><td class="pr-num">+0.15</td><td class="pr-num">+0.45</td></tr>
+<tr><th>Distance: task-2 loss at θ*</th><td class="pr-num">+0.89</td><td class="pr-num">+0.41</td><td class="pr-num">+0.37</td><td class="pr-num">+0.11</td><td class="pr-num">+0.42</td></tr>
+<tr><th>Gradient cosine at θ*</th><td class="pr-num">-0.09</td><td class="pr-num">+0.12</td><td class="pr-num">+0.11</td><td class="pr-num">+0.28</td><td class="pr-num">+0.22</td></tr>
+<tr><th>Sensitivity: task-1 curvature along −∇L₂</th><td class="pr-num">-0.25</td><td class="pr-num">-0.02</td><td class="pr-num">+0.00</td><td class="pr-num">+0.45</td><td class="pr-num">+0.25</td></tr>
+<tr><th>Sensitivity × distance: ½ κ (2L₂/‖∇L₂‖)²</th><td class="pr-num">+0.84</td><td class="pr-num">+0.38</td><td class="pr-num">+0.37</td><td class="pr-num pr-best">+0.63</td><td class="pr-num pr-best">+0.53</td></tr>
+<tr><td colspan="6" class="pr-sub">Not computed at &theta;*: needs 5% of the fine-tuning run</td></tr>
+<tr><th>Probe: forgetting after 5% of the steps</th><td class="pr-num">+0.95</td><td class="pr-num">+0.96</td><td class="pr-num">+0.95</td><td class="pr-num">+0.94</td><td class="pr-num">+0.95</td></tr>
+</tbody></table></div>

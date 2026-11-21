@@ -1,0 +1,138 @@
+/*******************************************************************************
+ * Course project progress report (_pages/cmsc838b-progress.html).
+ * Uses the proposal layout and the lecture's figure classes (svg.lec-svg);
+ * this file adds status badges, result tables and figure sizing.
+ * Figures are generated from the experiment results into
+ * _includes/cmsc838b-progress/ by the project's make_report.py.
+ ******************************************************************************/
+
+.pr-meta {
+  margin: 1.25rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--text-light);
+
+  a {
+    color: var(--text-muted);
+  }
+}
+
+// Done / partial / next: always a word, never colour alone
+.pr-status {
+  display: inline-block;
+  padding: 0.08rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+
+.pr-status--done {
+  border-color: var(--green-border);
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.pr-status--partial {
+  border-color: var(--amber-border);
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+
+figure.pr-fig {
+  margin: 1.5rem 0 0;
+}
+
+.pr-fig-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 1.5rem 2rem;
+  align-items: start;
+  margin-top: 1.5rem;
+
+  figure.pr-fig {
+    margin: 0;
+  }
+}
+
+table.lec-compare.pr-table {
+  td.pr-num,
+  th.pr-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  td.pr-best {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  tbody th {
+    width: auto;
+    color: var(--text);
+  }
+}
+
+p.pr-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-light);
+}
+
+ul.prop-list.pr-findings li {
+  margin-bottom: 0.7rem;
+}
+
+.pr-code {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text);
+}
+
+@media (max-width: 900px) {
+  .pr-fig-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+// A written report: the title block does not need a full screen
+.prop-title.pr-hero {
+  min-height: 0;
+  padding-top: 5rem;
+  padding-bottom: 3.5rem;
+}
+
+figure.pr-fig.pr-fig--narrow {
+  max-width: 34rem;
+}
+
+table.lec-compare.pr-table td.pr-sub {
+  padding-top: 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-light);
+}
+
+p.pr-note + p.lec-text {
+  margin-top: 1.5rem;
+}
+
+// Wide charts keep a readable size on phones and scroll sideways instead of shrinking
+@media (max-width: 720px) {
+  figure.pr-fig {
+    overflow-x: auto;
+
+    svg.lec-svg {
+      min-width: 600px;
+    }
+  }
+}

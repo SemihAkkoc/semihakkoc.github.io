@@ -1,0 +1,352 @@
+---
+layout: proposal
+permalink: /cmsc838b/progress/
+title: CMSC 838B Progress Report
+description: >
+  Written progress report for the CMSC 838B course project (Fall 2026): what has been built and measured so far on predicting
+  catastrophic forgetting from gradients, what remains, and what to expect by the end of the semester.
+---
+
+{% comment %}
+  Written progress report (Nov 21, 2026). Uses the proposal layout and the lecture's figure classes.
+  Figures and the GPT-2 table are generated from the experiment results by make_report.py in the course
+  project folder and written to _includes/cmsc838b-progress/; extra styles live in _sass/_progress.scss.
+{% endcomment %}
+
+<!-- Title -->
+<section class="prop-slide prop-title pr-hero" id="progress-title">
+  <div class="prop-inner">
+    <p class="ed-hero-label">CMSC 838B &middot; Project Progress Report &middot; November 21, 2026</p>
+    <h1 class="prop-title-main">Predicting <em>forgetting</em> from gradients: progress</h1>
+    <p class="prop-title-sub">
+      A working harness for full fine-tuning and LoRA, a numerical check of the gradient identity, a 720-run teacher&ndash;student
+      sweep, and a first GPT-2 task ladder: what they show, and what comes next.
+    </p>
+    <p class="prop-byline">
+      <strong>Semih Akko&ccedil;</strong> &middot; ECE Ph.D., University of Maryland &middot; Instructor: Prof. Ming C. Lin
+    </p>
+    <p class="pr-meta">
+      <a href="{{ '/cmsc838b/' | relative_url }}">Proposal</a> &middot; <a href="{{ '/cmsc838b/lecture/' | relative_url }}">Lecture (Nov 17)</a>
+      &middot; <a href="#summary">Summary</a> &middot; <a href="#remaining">What remains</a> &middot; <a href="#expected">By Dec 17</a>
+    </p>
+  </div>
+</section>
+
+<!-- 01 · Summary -->
+<section class="prop-slide prop-slide--alt" id="summary">
+  <div class="prop-inner">
+    {% include section_header.liquid n=1 label='Summary' title='What has been done so far' %}
+    <p class="prop-lead prop-lead--tight">
+      Everything promised for Nov 17&ndash;19 is in place. The GPT-2 task ladder exists as a one-seed pilot. Three findings so far:
+    </p>
+    <div class="prop-grid prop-grid--3">
+      <div class="ed-card prop-card">
+        <span class="prop-label">1 &middot; The identity holds</span>
+        <p>
+          Summing gradient alignment and curvature over every step recovers measured forgetting to within 0.1% on all 288 runs
+          where it was tracked.
+          Alignment alone does not: at step size 0.1 it misses a median 18%, and by 0.3 it explains almost none.
+        </p>
+      </div>
+      <div class="ed-card prop-card">
+        <span class="prop-label">2 &middot; When LoRA forgets less</span>
+        <p>
+          In the teacher&ndash;student model, LoRA forgets far less than full FT when the new task mostly needs a new readout, at
+          nearly the same learning and at any step size. When the features themselves must change, it forgets as much or more and
+          learns less. On GPT-2 (one seed) it did not consistently forget less.
+        </p>
+      </div>
+      <div class="ed-card prop-card">
+        <span class="prop-label">3 &middot; Prediction is the open part</span>
+        <p>
+          In the teacher&ndash;student sweep, the best quantity computed before fine-tuning reaches a rank correlation of 0.53 with
+          forgetting, while simply measuring forgetting after the first 5% of the run reaches 0.95. On GPT-2 the SGD-based
+          predictors do not yet carry over to AdamW. Closing these gaps is the main goal for December.
+        </p>
+      </div>
+    </div>
+
+    <h3 class="prop-col-title prop-col-title--later">Against the proposal's Nov 17&ndash;19 milestone</h3>
+    <div class="lec-table-wrap">
+      <table class="lec-compare pr-table">
+        <thead><tr><th>Promised</th><th>Status</th><th>What exists</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Fine-tuning harness: full FT and a LoRA rank sweep, logging forgetting and learning</td>
+            <td><span class="pr-status pr-status--done">Done</span></td>
+            <td>Teacher&ndash;student (LoRA \(r = 1, 2, 4\)) and GPT-2 small (Hugging Face PEFT, \(r = 16\))</td>
+          </tr>
+          <tr>
+            <td>Teacher&ndash;student sweep over feature and readout similarity, both methods, &ge; 3 seeds</td>
+            <td><span class="pr-status pr-status--done">Done</span></td>
+            <td>720 runs: 12 feature &times; 3 readout similarities &times; 4 methods &times; 5 seeds, plus frontier and step-size grids</td>
+          </tr>
+          <tr>
+            <td>Autodiff predictors; integral identity verified numerically</td>
+            <td><span class="pr-status pr-status--done">Done</span></td>
+            <td>Five predictors computed at \(\theta^\star\); identity checked step by step on 288 runs</td>
+          </tr>
+          <tr>
+            <td>First real task ladder on a small pretrained LM</td>
+            <td><span class="pr-status pr-status--partial">Pilot</span></td>
+            <td>GPT-2 small: AG News, then four task-2 levels, full FT and LoRA \(r = 16\), one seed</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="prop-grid prop-grid--2">
+      <div>
+        <h3 class="prop-col-title prop-col-title--later">Code developed</h3>
+        <ul class="prop-list prop-list--compact">
+          <li><span class="pr-code">ts_forgetting.py</span>: teacher&ndash;student harness in <code>torch.func</code>. Full FT or LoRA on the shared layer, a head per task, and exact per-step bookkeeping of the forgetting terms (forward-over-reverse Hessian&ndash;vector products).</li>
+          <li><span class="pr-code">sweep.py</span>: parallel, resumable grids.</li>
+          <li><span class="pr-code">lm_pilot.py</span>: GPT-2 with Transformers and PEFT. Predictors through the whole network (exact HVP by double backward, in micro-batches) and per-block reset attribution.</li>
+          <li><span class="pr-code">make_report.py</span>: every figure and table on this page, regenerated from saved results.</li>
+        </ul>
+        <p class="pr-note">About 1,100 lines of Python, to be released with the final report.</p>
+      </div>
+      <div>
+        <h3 class="prop-col-title prop-col-title--later">Ideas formed along the way</h3>
+        <ul class="prop-list prop-list--compact">
+          <li><strong>Measure forgetting with a frozen task-1 head.</strong> With one shared output, a student that learns task 2 simply becomes the task-2 function, so forgetting equals the distance between the two teachers and there is nothing to predict. With a head per task, forgetting is the damage done to shared features, the same protocol as the GPT-2 pilot.</li>
+          <li><strong>Hold sharpness fixed across seeds.</strong> Random teacher readouts made some seeds about 3&times; sharper, so one step size meant different things per seed and the Taylor expansion broke down on the sharp ones. Normalizing the readouts fixed both: a small instance of the step-size point in Prof. Lin's feedback.</li>
+          <li><strong>At \(\theta^\star\) the old gradient is about zero,</strong> so gradient cosine there is noise (rank correlation &minus;0.09 to 0.28 here, and \(|\cos| &lt; 0.02\) on GPT-2). Predictors computed before fine-tuning need curvature or a model of the early dynamics.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 · Teacher-student results -->
+<section class="prop-slide" id="results">
+  <div class="prop-inner">
+    {% include section_header.liquid n=2 label='Results: teacher&ndash;student' title='What the controlled sweep shows' %}
+
+    <h3 class="prop-col-title">The identity, and when curvature matters</h3>
+    <p class="lec-text">
+      Every step logs the exact change in task-1 loss together with its first-order term \(\nabla\mathcal{L}_1\cdot\Delta\theta\)
+      (gradient alignment) and second-order term \(\tfrac12\Delta\theta^{\top}H_1\Delta\theta\) (curvature). Summed over 3,000
+      steps, the two recover measured forgetting with a median relative error of 0.03% (largest 0.1%). Alignment alone tracks it
+      closely at small steps and less and less as the step grows. This is the &eta;-versus-&eta;&sup2; trade-off from the
+      proposal, now measured.
+    </p>
+    {% include cmsc838b-progress/fig-identity.html %}
+
+    <h3 class="prop-col-title prop-col-title--later">Forgetting against task similarity</h3>
+    <p class="lec-text">
+      Two teachers define the tasks: feature similarity \(\gamma\) mixes their first layers and readout similarity \(\rho\) their
+      output weights. When readouts agree (\(\rho = 1\)), forgetting falls almost linearly with \(\gamma\), and full FT and every LoRA
+      rank forget about the same amount. When readouts differ, full FT forgets nearly everything even at \(\gamma = 1\), where
+      the features are identical: it rewrites the shared layer instead of only the head. LoRA does not, and the lower the rank, the
+      less it forgets. This protocol shows no peak at intermediate similarity, unlike
+      <a class="prop-cite" href="#ref-lee21">Lee et al. 2021</a>; finding which design choice
+      makes the difference is on the list below.
+    </p>
+    {% include cmsc838b-progress/fig-similarity.html %}
+
+    <h3 class="prop-col-title prop-col-title--later">Is &ldquo;LoRA forgets less&rdquo; just &ldquo;LoRA learns less&rdquo;?</h3>
+    <p class="lec-text">
+      Comparing methods across step sizes answers this. With matching readouts, LoRA is worse on both axes: it forgets more and learns
+      less at every step size. With different readouts, full FT forgets about 1.9 at every step size, even the smallest, while
+      LoRA \(r = 1\) forgets 0.1&ndash;0.25 and leaves under 2% of the task-2 loss. A smaller step does not help full FT, which
+      points to the ratio between how fast the head and the features learn rather than the step size itself. Because LoRA's \(B\)
+      starts at zero, its first feature updates move only within the \(r\) random input directions spanned by \(A\) (out of
+      \(N = 100\)), so the head fits first. This matches the feature-distortion
+      argument for linear probing before fine-tuning
+      (<a class="prop-cite" href="#ref-kumar22">Kumar et al. 2022</a>) and is the next thing to test directly.
+    </p>
+    {% include cmsc838b-progress/fig-frontier.html %}
+
+    <h3 class="prop-col-title prop-col-title--later">Predictor scorecard (preliminary)</h3>
+    <p class="lec-text">
+      Spearman rank correlation between each predictor and measured forgetting over the 180 runs of each method (720 pooled).
+      Bold marks the best quantity computed before fine-tuning. Task similarity works for full FT but not for LoRA, whose forgetting
+      depends on whether the head can absorb the change. Curvature times distance is the best single quantity across all runs,
+      but a short probe run beats every quantity computed at \(\theta^\star\).
+    </p>
+    {% include cmsc838b-progress/table-scorecard.html %}
+
+    <div class="prop-more prop-detail">
+      <p class="ed-eyebrow">Setup</p>
+      <p>
+        Inputs \(x \sim \mathcal{N}(0, I_{100})\); teachers and students are two-layer networks with 4 erf hidden units. Teacher
+        features have unit norm, and readouts are rescaled to a common norm so that every seed has the same output scale. The student
+        learns task 1 by online SGD (batch 128, 12,000 steps), reaching a relative loss below \(10^{-3}\). Task 2 then runs for 3,000
+        steps at step size 0.1 unless stated otherwise, with the task-2 head initialized as a copy of the task-1 head and the task-1
+        head frozen. LoRA adapts the shared layer as \(U^\star + BA\) with \(A\) random (rows of norm about 1), \(B = 0\) and
+        \(\alpha = r\). Forgetting is the rise in task-1 loss on 8,000 held-out inputs, divided by the loss of predicting zero: 1
+        means no better than predicting zero, and about 2 means the old head now outputs noise of the same size. The curvature
+        predictor is \(\kappa = g_2^{\top}H_1 g_2/\|g_2\|^2\) along the first task-2 step; &ldquo;curvature &times; distance&rdquo;
+        is \(\tfrac12\kappa D^2\) with the distance to travel estimated as \(D = 2\mathcal{L}_2/\|g_2\|\).
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- 03 · GPT-2 pilot -->
+<section class="prop-slide prop-slide--alt" id="gpt2">
+  <div class="prop-inner">
+    {% include section_header.liquid n=3 label='Results: GPT-2 pilot' title='A first real task ladder' %}
+    <p class="lec-text">GPT-2 small was fine-tuned on AG News (90.9% accuracy) and then on one of four task-2 datasets, ordered by how far
+      they look from AG News. New AG News data caused no forgetting; the other three cost 2&ndash;5 accuracy points, most for MNLI,
+      the least related task. Two things already differ from the intended ladder: DBpedia, a topic task, cost full FT more than
+      sentiment did, and LoRA \(r = 16\) did not consistently forget less (a little less on DBpedia, more on SST-2, the same on
+      MNLI, where it also learned less).</p>
+    {% include cmsc838b-progress/table-lm.html %}
+    <p class="pr-note">
+      Forgetting is the drop in AG News test accuracy (2,000 examples) read through the frozen task-1 head; &theta;* scores
+      90.9%. Task-2 accuracy is on held-out data. The last four columns are computed at &theta;* before fine-tuning: linear-probe
+      accuracy of the old features on task 2, gradient cosine between the two tasks over all weights and over LoRA's parameters
+      at initialization, and task-1 curvature along the task-2 gradient. One seed, so differences of a point or two are within noise.
+    </p>
+    <p class="lec-text">On the predictors, gradient cosine at \(\theta^\star\) is again about zero for every pair. Curvature along the task-2
+      gradient ranks the pairs in nearly the <em>reverse</em> order of forgetting (Spearman &minus;0.8 for full FT, &minus;1.0 for
+      LoRA, over four pairs): MNLI pushes along directions where task 1 is flat, but the old features are useless for it (linear
+      probe 38%, chance 33%), so the run travels far. In the teacher&ndash;student model the distance term corrected for this.
+      Here, however, training uses AdamW, whose per-parameter normalization decouples distance travelled from gradient size, so
+      the distance estimate has to be redone in Adam's metric before the predictors can be scored on GPT-2. The linear-probe
+      accuracy of the old features does better (Spearman 0.4 for full FT, 0.8 for LoRA). As for <em>where</em> forgetting
+      happens: resetting one block to \(\theta^\star\) recovers the most AG News accuracy in the middle blocks (4&ndash;7) for every
+      pair, while the curvature at \(\theta^\star\) tends to concentrate in the first blocks. They barely agree for MNLI, shown
+      below (Spearman 0.05 across blocks), and moderately for DBpedia (0.43) and SST-2 (0.37).</p>
+    {% include cmsc838b-progress/fig-blocks.html %}
+
+    <div class="prop-more prop-detail">
+      <p class="ed-eyebrow">Setup</p>
+      <p>
+        GPT-2 small (124M) reads the last token through a linear head per task. Inputs are truncated to 64 tokens. Task 1 is
+        AG News (60,000 training texts, 600 steps of batch 32, AdamW at \(2\times10^{-5}\)). Each task 2 then trains for 500 steps,
+        with full FT at \(2\times10^{-5}\), or LoRA \(r = 16\), \(\alpha = 32\) on all attention and MLP projections at
+        \(2\times10^{-4}\). The new heads train at \(10^{-3}\) in both. Task 2 is AG News on the other half of its training
+        set, DBpedia-14, SST-2 or MNLI. Predictors use 64 examples per task, and the task-2 gradient is taken through a linear
+        probe fitted on frozen features so that it is not dominated by a random head.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- What remains -->
+<section class="prop-slide" id="remaining">
+  <div class="prop-inner">
+    {% include section_header.liquid n=4 label='What remains' title='What is left to do' %}
+    <ul class="prop-list prop-list--open">
+      <li>
+        <strong>Test the mechanism behind finding 2.</strong> Run full FT with a smaller step on the shared layer only, or with a
+        linear probe first. If that matches LoRA \(r = 1\), the effect comes from how fast the head learns relative to the features,
+        not from low rank.
+      </li>
+      <li>
+        <strong>Close the prediction gap.</strong> Forecast the first few percent of fine-tuning from \(\theta^\star\) in each
+        method's own parametrization (a linearized, NTK-style model). That is what the 5% probe measures directly, at a fraction of its cost.
+      </li>
+      <li>
+        <strong>Find the intermediate-similarity peak</strong> reported by Lee et al. by varying how the task-2 head is initialized
+        and how wide the student is.
+      </li>
+      <li>
+        <strong>GPT-2 study at full size.</strong> Four ladder levels &times; {full FT, LoRA \(r = 4, 16, 64\)} &times; 3 seeds, with a
+        learning-rate sweep so that methods are compared on the learning&ndash;forgetting frontier. The pilot above is one seed, one
+        rank and one step size.
+      </li>
+      <li>
+        <strong>Predictor scorecard on real tasks.</strong> Redo the distance and curvature terms in AdamW's preconditioned metric,
+        then score every predictor across task pairs against the two baselines from the proposal: representation similarity (CKA)
+        and Fisher task embeddings (Task2Vec).
+        The Fisher baseline only makes sense here: in the teacher&ndash;student model both tasks share one input distribution, so
+        the model's Fisher is the same for both.
+      </li>
+      <li>
+        <strong>Per-block attribution</strong> for LoRA as well as full FT, over several seeds.
+      </li>
+      <li>
+        <strong>A causal test.</strong> Protect the blocks or parameters with the highest predicted sensitivity (freeze them, or
+        project the task-2 gradient away from them) and compare with protecting a random set of the same size, at matched task-2
+        accuracy.
+      </li>
+      <li>
+        <strong>Step size, following Prof. Lin's comment.</strong> Sweep the task-1 and task-2 step sizes separately, estimate
+        \(\lambda_{\max}\) at \(\theta^\star\) by power iteration on Hessian&ndash;vector products, and repeat the alignment-versus-curvature
+        split on GPT-2.
+      </li>
+      <li><strong>Final report and code release.</strong></li>
+    </ul>
+  </div>
+</section>
+
+<!-- Expected by Dec 17 -->
+<section class="prop-slide prop-slide--alt" id="expected">
+  <div class="prop-inner">
+    {% include section_header.liquid n=5 label='By Dec 17' title='Realistic contributions by the end of the semester' %}
+    <div class="prop-grid prop-grid--2">
+      <div>
+        <ol class="prop-hypotheses">
+          <li>
+            <span class="prop-h">C1</span>
+            <p>An exact, numerically checked split of forgetting into gradient alignment and curvature along the fine-tuning path,
+            with the step size at which curvature takes over, for full FT and LoRA, in the teacher&ndash;student model
+            (done) and on GPT-2.</p>
+          </li>
+          <li>
+            <span class="prop-h">C2</span>
+            <p>A map of forgetting over feature and readout similarity for full FT and LoRA ranks at matched learning, which
+            tests whether &ldquo;LoRA forgets less&rdquo; survives once learning is matched.</p>
+          </li>
+          <li>
+            <span class="prop-h">C3</span>
+            <p>A predictor scorecard on a four-level GPT-2 task ladder (3 seeds): which quantity computed at \(\theta^\star\)
+            ranks forgetting best, and whether per-block sensitivity points to the blocks that actually forget.</p>
+          </li>
+          <li>
+            <span class="prop-h">C4</span>
+            <p>One sensitivity-guided mitigation against a random control, as a causal check of C3.</p>
+          </li>
+        </ol>
+      </div>
+      <div>
+        <h3 class="prop-col-title">If time is short</h3>
+        <ul class="prop-list">
+          <li>C1&ndash;C3 come first. C4 shrinks to freezing the top-ranked blocks versus random blocks.</li>
+          <li>LoRA \(r = 64\) and the loss-landscape slices are cut before seeds are.</li>
+          <li>The second model (Pythia-160M) is optional.</li>
+        </ul>
+        <h3 class="prop-col-title prop-col-title--later">Long-term, if time allows</h3>
+        <ul class="prop-list">
+          <li>
+            <strong>Differentiable tuning.</strong> Differentiate task-1 loss through a short unrolled fine-tuning run with respect to
+            per-layer learning rates or LoRA placement, to trade learning against forgetting directly.
+          </li>
+          <li>
+            <strong>Theory for LoRA.</strong> Order-parameter ODEs for the teacher&ndash;student model with a low-rank adapter,
+            to explain the rank effects measured here.
+          </li>
+          <li>
+            <strong>Loss-landscape slices</strong> through \(\theta^\star\), the fine-tuned and the multitask solutions, compared
+            across settings.
+          </li>
+          <li><strong>Scale:</strong> larger and instruction-tuned models, and longer task sequences.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- References used on this page -->
+<section class="prop-refs" id="references">
+  <div class="prop-inner">
+    {% include section_header.liquid label='References' title='Cited on this page' %}
+    <ol class="prop-refs-list">
+      <li id="ref-lee21">
+        S. Lee, S. Goldt, A. Saxe.
+        <a href="https://proceedings.mlr.press/v139/lee21e.html">Continual Learning in the Teacher-Student Setup: Impact of Task Similarity</a>.
+        ICML 2021.
+      </li>
+      <li id="ref-kumar22">
+        A. Kumar, A. Raghunathan, R. Jones, T. Ma, P. Liang.
+        <a href="https://arxiv.org/abs/2202.10054">Fine-Tuning can Distort Pretrained Features and Underperform Out-of-Distribution</a>.
+        ICLR 2022.
+      </li>
+    </ol>
+    <p class="pr-note">The full reading list is on the <a href="{{ '/cmsc838b/' | relative_url }}#references">proposal page</a>.</p>
+  </div>
+</section>
